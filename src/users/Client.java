@@ -96,7 +96,7 @@ public final class Client extends User{
             System.out.println("3. Book an appointment for a service");
             System.out.println("4. Leave a Review for a service");
             System.out.println("5. Browse available services");
-            System.out.println("6. List Account Invoices");
+            System.out.println("6. View Invoices and Review Services");
             System.out.println("7. Become a service provider");
             System.out.println("8. Logout");
             System.out.print("-> ");

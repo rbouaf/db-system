@@ -18,6 +18,7 @@ public class Service {
     String serviceProviderID;
     String categoryID;
     //need to check all the services and how many different categories
+    private static LinkedList<Service> availableServices = new LinkedList<>();
 
     public Service(String name, String description, float priceRate, String categoryID, String serviceProviderID){
         this.name = name;
@@ -29,6 +30,53 @@ public class Service {
         this.avgTimeToComplete = 0;
         this.serviceProviderID = serviceProviderID;
         this.categoryID = categoryID;
+    }
+
+    private Service(String name, String description, float priceRate, int numTimesProvided, float rating, int avgTimeToComplete, String categoryID, String serviceProviderID){
+        this.name = name;
+        this.description = description;
+        this.priceRate = priceRate;
+        this.availability = true;
+        this.numTimesProvided = numTimesProvided;
+        this.rating = rating;
+        this.avgTimeToComplete = avgTimeToComplete;
+        this.serviceProviderID = serviceProviderID;
+        this.categoryID = categoryID;
+    }
+
+    public static void fetchAvailableServiceList(Connection connection){
+        String fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
+                "categoryID, providerID FROM Services WHERE availability = \"TRUE\";";
+
+        availableServices.clear();
+        try{
+            PreparedStatement fetchStatement = connection.prepareStatement(fetchServicesSQL);
+            ResultSet servicesResult = fetchStatement.executeQuery();
+            while(servicesResult.next()){
+                availableServices.add(new Service(servicesResult.getString("name"),
+                        servicesResult.getString("description"),
+                        Float.parseFloat(servicesResult.getString("pricerate")),
+                        Integer.parseInt(servicesResult.getString("numTimesProvided")),
+                        Float.parseFloat(servicesResult.getString("rating")),
+                        Integer.parseInt(servicesResult.getString("avgTimeToComplete")),
+                        servicesResult.getString("categoryID"),
+                        servicesResult.getString("providerID")));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("An error occured while updating services");
+        } catch (Exception e){
+            System.out.println("An error occured while fetching new service");
+        }
+    }
+
+    public static void printAvailableServices(){
+        System.out.println("List of Available Services:");
+        System.out.println("----------------------------");
+        System.out.println("name\t\t\t | description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryID | serviceProviderID");
+        for (Service s : availableServices) {
+            System.out.println(s);
+        }
     }
 
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
@@ -239,7 +287,26 @@ public class Service {
         }
     }
 
-    public static boolean serviceExists(ServiceProvider serviceProvider, String name){
-        return false;
+    @Override
+    public String toString() {
+
+        return matchLength(name, 16) + "   " +
+                matchLength(description, 21)  + "    " +
+                matchLength(String.format("%.2f", priceRate), 9) + " " +
+                matchLength(String.format("%d", numTimesProvided), 16)+ "   " +
+                matchLength(String.format("%.2f", rating), 6) + "   " +
+                matchLength(String.format("%d", avgTimeToComplete), 17)+ "   " +
+                matchLength(categoryID, 10) + "   " +
+                matchLength(serviceProviderID, 17);
+    }
+
+    public String matchLength(String str, int len){
+        if(str.length() > len)
+            return str.substring(0, len - 3) + "...";
+        else if(str.length() == len) return str;
+        else{
+            int spaceCount = len - str.length();
+            return str + " ".repeat(spaceCount);
+        }
     }
 }

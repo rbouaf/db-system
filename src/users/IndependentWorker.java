@@ -19,17 +19,29 @@ public final class IndependentWorker extends ServiceProvider{
         this.SOCIAL_SECURITY_NUMBER = SSN;
     }
 
+    public IndependentWorker(User user, String accountNum, String transitNum, String bankNum, Scanner scanner) {
+        super(user.email, user.password, user.name, user.phone, user.address, accountNum, transitNum, bankNum, 0.0F);
+        System.out.print("Please enter your Social Security Number -> ");
+        this.SOCIAL_SECURITY_NUMBER = scanner.nextLine();
+    }
+
     @Override
     public ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner) {
         return null;
     }
 
+
+
     @Override
-    public void storeNewUserInDb(Connection connection){
-        super.storeNewUserInDb(connection);
-        String sqlStatement = "";
+    public void storeNewServiceProvider(Connection connection){
+        super.storeNewServiceProvider(connection);
+        String sqlStatement = "INSERT INTO IndependentWorkers (userID,socialNumber) " +
+                "VALUES (?,?);";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+            preparedStatement.setString(1, this.getUserID(connection));
+            preparedStatement.setString(2, this.SOCIAL_SECURITY_NUMBER);
+            preparedStatement.execute();
         }
         catch (SQLException se){
             //todo

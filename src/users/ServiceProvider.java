@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public abstract class ServiceProvider extends User{
-    //todo for now tmp final
     protected final String accountNum;
     protected final String transitNum;
     protected final String bankNum;
@@ -33,34 +32,61 @@ public abstract class ServiceProvider extends User{
     }
 
     public static ServiceProvider newServiceProviderMenu(User user, Connection connection, Scanner scanner){
+        scanner.nextLine();
+        System.out.println("We will need some banking information in order to continue");
+        System.out.print("Please write your bank account number -> ");
+        String accountNum = scanner.nextLine();
+        //formatting
+        System.out.print("Please write your transit number -> ");
+        String transitNum = scanner.nextLine();
+        System.out.print("Please write your bank branch number -> ");
+        String bankNum = scanner.nextLine();
         System.out.println("What kind of service provider would you like to register as?");
         System.out.println("1. Business");
         System.out.println("2. Independent Worker");
         System.out.print("Select one of the options above-> ");
-        boolean running = true;
-        while (running){
+        while (true){
             int choice = scanner.nextInt();
             switch (choice){
                 case 1:
                     //todo business
-                    running = false;
-                    return null;
+                    Business business = new Business(user, accountNum, transitNum, bankNum, scanner);
+                    business.storeNewServiceProvider(connection);
+                    return business;
                 case 2:
                     //todo indep worker
-                    running = false;
-                    return null;
+                    IndependentWorker independentWorker = new IndependentWorker(user, accountNum, transitNum, bankNum, scanner);
+                    independentWorker.storeNewServiceProvider(connection);
+                    return independentWorker;
                 default:
                     System.out.println("Invalid option!");
-                    System.out.println("Please select one of the 2 aforementioned options");
+                    System.out.print("Please select one of the 2 aforementioned options -> ");
             }
         }
-        return null;
+    }
+
+    protected void storeNewServiceProvider(Connection connection){
+        String sql = "INSERT INTO ServiceProviders (userID,accountNum,transitNum,bankNum,totalEarned) " +
+                "VALUES (?,?,?,?,?);";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, this.getUserID(connection));
+            preparedStatement.setString(2, this.accountNum);
+            preparedStatement.setString(3, this.transitNum);
+            preparedStatement.setString(4, this.bankNum);
+            preparedStatement.setString(5, String.valueOf(this.totalEarned));
+            preparedStatement.execute();
+            System.out.println("Successfully stored a new service provider in the database");
+
+        } catch (SQLException e) {
+            //todo
+            throw new RuntimeException(e);
+        }
     }
 
     public static ServiceProvider serviceProviderFromUser(User user, Connection connection){
         //first check if business or indep
         String userID = user.getUserID(connection);
-
         try{
             String sqlBasic = "SELECT accountNum,transitNum,bankNum,totalEarned FROM ServiceProviders " +
                     "WHERE userID = ?";
@@ -94,8 +120,7 @@ public abstract class ServiceProvider extends User{
             }
         }
         catch (SQLException se){
-            //todo
-            System.out.println("Error occured at service provider from user method");
+            System.out.println("Error occurred at service provider from user method");
             System.out.println(se);
         }
         catch (NumberFormatException ne){
@@ -114,13 +139,16 @@ public abstract class ServiceProvider extends User{
             System.out.println("1. Change user profile");
             System.out.println("2. Check user profile");
             System.out.println("3. Post a new service");
+            System.out.println("4. Post a new schedule");
             //the below option is for how many clients booked, how much earned
             //how much earned by service, etc.
-            System.out.println("4. Update a service");
-            System.out.println("5. Check useful analytics");
-            System.out.println("6. Browse available services");
-            System.out.println("7. Become a client");
-            System.out.println("8. Logout");
+            //todo should we also add delete a service and a schedule???
+            System.out.println("5. Update a service");
+            System.out.println("6. Update a schedule");
+            System.out.println("7. Check useful analytics");
+            System.out.println("8. Browse available services");
+            System.out.println("9. Become a client");
+            System.out.println("10. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
             switch (choice){
@@ -142,18 +170,25 @@ public abstract class ServiceProvider extends User{
                     Service.newService(serviceProvider, conn, scanner);
                     break;
                 case 4:
+                    //todo create a new schedule
+                    Schedule.newSchedule(serviceProvider, conn, scanner);
+                    break;
+                case 5:
                     //todo update a service
                     Service.updateService(serviceProvider, conn, scanner);
                     break;
-                case 5:
-                    displayData(serviceProvider, conn, scanner);
-                    break;
                 case 6:
+                    //todo update a schedule
                     break;
                 case 7:
-                    //todo may remove that option
+                    displayData(serviceProvider, conn, scanner);
                     break;
                 case 8:
+                    break;
+                case 9:
+                    //todo may remove that option
+                    break;
+                case 10:
                     running = false;
                     System.out.println("Successfully logged out");
                     break;

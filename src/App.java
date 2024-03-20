@@ -62,24 +62,9 @@ public class App {
     public static User registerNewUser(Connection conn, Scanner scanner) {
         //TODO: we could record how many users register by month
         User user = User.makeNewUser(conn, scanner);
-        addToDb(conn, user);
+        user.storeNewUserInDb(conn);
         System.out.println(user);
         return user;
-    }
-
-    private static void addToDb(Connection conn, User user){
-        if (user instanceof Client client){
-            client.storeNewUserInDb(conn);
-        }
-        else if (user instanceof IndependentWorker independentWorker){
-            independentWorker.storeNewUserInDb(conn);
-        }
-        else if (user instanceof Business business){
-            business.storeNewUserInDb(conn);
-        }
-        else{
-            user.storeNewUserInDb(conn);
-        }
     }
 
     private static void loginMenu(Scanner scanner){

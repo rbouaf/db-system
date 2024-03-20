@@ -6,8 +6,16 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public final class Business extends ServiceProvider{
-    public Business(String email, String password, String name, String phone, String address, String accountNum, String transitNum, String bankNum) {
+    private final String NEQ;
+    public Business(String email, String password, String name, String phone, String address,
+                    String accountNum, String transitNum, String bankNum, String neq) {
         super(email, password, name, phone, address, accountNum, transitNum, bankNum);
+        this.NEQ = neq;
+    }
+
+    public Business(User user, String accountNum, String transitNum, String bankNum, float total, String neq){
+        super(user.email, user.password, user.name, user.phone, user.address, accountNum, transitNum, bankNum, total);
+        this.NEQ = neq;
     }
 
     @Override
@@ -26,46 +34,11 @@ public final class Business extends ServiceProvider{
             //todo
         }
     }
-    public /* static */ void serviceProviderMenu(String servProvId, String servProvName, Scanner scanner){
-        boolean running = true;
-        while (running){
-            System.out.println("Welcome" + servProvName);
-            System.out.println("Please select one the following options:");
-            //depends on type of service provider
-            System.out.println("1. Change user profile");
-            System.out.println("2. Post a new service");
-            //the below option is for how many clients booked, how much earned
-            //how much earned by service, etc.
-            System.out.println("3. Update a service");
-            System.out.println("4. Check useful analytics");
-            System.out.println("5. Browse available services");
-            System.out.println("6. Become a client");
-            System.out.println("7. Logout");
-            int choice = scanner.nextInt();
-            switch (choice){
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    running = false;
-                    System.out.println("Successfully logged out");
-                    break;
-            }
-        }
-    }
 
     @Override
-    protected void changeUserProfile(Connection conn, Scanner scanner) {
-        super.changeUserProfile(conn, scanner);
+    public String toString(){
+        String str = super.toString();
+        return str + "NEQ: " + this.NEQ + "\n";
     }
 
 }

@@ -148,7 +148,8 @@ public class User {
                     running = false;
                     break;
                 case 5:
-                    //todo
+                    ServiceProvider serviceProvider = ServiceProvider.newServiceProviderMenu(user, conn, scanner);
+                    ServiceProvider.serviceProviderMenu(serviceProvider, conn, scanner);
                     break;
                 case 6:
                     running = false;

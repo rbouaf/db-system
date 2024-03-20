@@ -199,6 +199,7 @@ public class Service {
     public static void updateService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
         //TODO
         scanner.nextLine();
+        //perhaps query first, then list, and then ask which one to do
         System.out.print("Please name the service you would like to update -> ");
         boolean runnning = true;
         while (runnning) {
@@ -327,6 +328,22 @@ public class Service {
         }
     }
 
+    public static String[] getServiceAvailabilityById(Connection connection, int id){
+        //must be in the database
+        //must be available
+        String sql = "SELECT availability,providerID FROM Services WHERE serviceID = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, String.valueOf(id));
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return new String[]{resultSet.getString(1), resultSet.getNString(2)};
+        }
+        catch (SQLException e) {
+            return null;
+        }
+    }
+
     private static String getCategoryId(Connection connection, String category) {
         String sql = "SELECT categoryID FROM categories WHERE name = ?;";
         try{
@@ -349,7 +366,6 @@ public class Service {
 
     @Override
     public String toString() {
-
         return matchLength(name, 16) + "   " +
                 matchLength(description, 21)  + "    " +
                 matchLength(String.format("%.2f", priceRate), 9) + " " +

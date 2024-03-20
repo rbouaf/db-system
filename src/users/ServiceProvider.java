@@ -181,12 +181,14 @@ public abstract class ServiceProvider extends User{
                     Service.updateService(serviceProvider, conn, scanner);
                     break;
                 case 6:
-
+                    //todo update a schedule
+                    //list all the schedules to user and make them select the
+                    //one they want to update
                     break;
                 case 7:
                     displayData(serviceProvider, conn, scanner);
                     break;
-                case 8: // Browse Services
+                case 8:
                     Service.browseServices(conn, scanner);
                     break;
                 case 9: // View Invoices

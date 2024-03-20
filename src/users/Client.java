@@ -1,10 +1,10 @@
 package users;
 
+import services.Appointments;
 import services.Service;
 
 import java.sql.*;
 import java.util.Scanner;
-import java.util.concurrent.TimeoutException;
 
 public final class Client extends User{
     private String CCNum;
@@ -110,6 +110,7 @@ public final class Client extends User{
                     break;
                 case 3:
                     //todo in appmnts package
+                    Appointments.newAppointmentMenu(user, conn, scanner);
                     break;
                 case 4:
                     break;

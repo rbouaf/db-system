@@ -344,9 +344,9 @@ public class User {
 
     public String toString(){
         return  "\nEmail: " + this.email +
-                "\tPassword: " + this.password +
+                "\t\t\tPassword: " + this.password +
                 "\nName: " + this.name +
-                "\t\tAddress: " + this.address +
+                "\t\t\tAddress: " + this.address +
                 "\nPhone: " + this.phone + "\n";
     }
 

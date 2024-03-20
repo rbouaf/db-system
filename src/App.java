@@ -24,6 +24,10 @@ public class App {
             System.out.println("1. Register");
             System.out.println("2. Login");
             System.out.println("3. Quit the application");
+            //add root mode
+            //root mode allows to see different queries
+            //check how many users are simple users and not provs or clients
+
             System.out.print("Please select an option -> ");
             int option = scanner.nextInt();
             //clear the buffer

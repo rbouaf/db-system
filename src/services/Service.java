@@ -18,7 +18,7 @@ public class Service {
     String serviceProviderID;
     String categoryID;
     //need to check all the services and how many different categories
-    private static LinkedList<Service> servicesList = new LinkedList<>();
+    private static LinkedList<Service> availableServices = new LinkedList<>();
 
     public Service(String name, String description, float priceRate, String categoryID, String serviceProviderID){
         this.name = name;
@@ -32,12 +32,51 @@ public class Service {
         this.categoryID = categoryID;
     }
 
-    public static void updateServiceList(Connection connection){
-
+    private Service(String name, String description, float priceRate, int numTimesProvided, float rating, int avgTimeToComplete, String categoryID, String serviceProviderID){
+        this.name = name;
+        this.description = description;
+        this.priceRate = priceRate;
+        this.availability = true;
+        this.numTimesProvided = numTimesProvided;
+        this.rating = rating;
+        this.avgTimeToComplete = avgTimeToComplete;
+        this.serviceProviderID = serviceProviderID;
+        this.categoryID = categoryID;
     }
 
-    public static void printAvailableServices(String categories){
+    public static void fetchAvailableServiceList(Connection connection){
+        String fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
+                "categoryID, providerID FROM Services WHERE availability = \"TRUE\";";
 
+        availableServices.clear();
+        try{
+            PreparedStatement fetchStatement = connection.prepareStatement(fetchServicesSQL);
+            ResultSet servicesResult = fetchStatement.executeQuery();
+            while(servicesResult.next()){
+                availableServices.add(new Service(servicesResult.getString("name"),
+                        servicesResult.getString("description"),
+                        Float.parseFloat(servicesResult.getString("pricerate")),
+                        Integer.parseInt(servicesResult.getString("numTimesProvided")),
+                        Float.parseFloat(servicesResult.getString("rating")),
+                        Integer.parseInt(servicesResult.getString("avgTimeToComplete")),
+                        servicesResult.getString("categoryID"),
+                        servicesResult.getString("providerID")));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("An error occured while updating services");
+        } catch (Exception e){
+            System.out.println("An error occured while fetching new service");
+        }
+    }
+
+    public static void printAvailableServices(){
+        System.out.println("List of Available Services:");
+        System.out.println("----------------------------");
+        System.out.println("name\t\t\t | description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryIDt | serviceProviderID");
+        for (Service s : availableServices) {
+            System.out.println(s);
+        }
     }
 
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
@@ -215,5 +254,16 @@ public class Service {
         }
     }
 
+    @Override
+    public String toString() {
 
+        return (name.length() > 16 ? name.substring(0, 14) + "..." : name ) + " " +
+                (description.length() > 21 ? description.substring(0, 18) + "..." : description )  + " " +
+                priceRate + "\t" +
+                numTimesProvided + "\t" +
+                rating + "\t" +
+                avgTimeToComplete + "\t" +
+                serviceProviderID + "\t" +
+                categoryID + "\t";
+    }
 }

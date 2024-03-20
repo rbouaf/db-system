@@ -73,7 +73,7 @@ public class Service {
     public static void printAvailableServices(){
         System.out.println("List of Available Services:");
         System.out.println("----------------------------");
-        System.out.println("name\t\t\t | description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryIDt | serviceProviderID");
+        System.out.println("name\t\t\t | description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryID | serviceProviderID");
         for (Service s : availableServices) {
             System.out.println(s);
         }
@@ -257,13 +257,23 @@ public class Service {
     @Override
     public String toString() {
 
-        return (name.length() > 16 ? name.substring(0, 14) + "..." : name ) + " " +
-                (description.length() > 21 ? description.substring(0, 18) + "..." : description )  + " " +
-                priceRate + "\t" +
-                numTimesProvided + "\t" +
-                rating + "\t" +
-                avgTimeToComplete + "\t" +
-                serviceProviderID + "\t" +
-                categoryID + "\t";
+        return matchLength(name, 16) + "   " +
+                matchLength(description, 21)  + "    " +
+                matchLength(String.format("%.2f", priceRate), 9) + " " +
+                matchLength(String.format("%d", numTimesProvided), 16)+ "   " +
+                matchLength(String.format("%.2f", rating), 6) + "   " +
+                matchLength(String.format("%d", avgTimeToComplete), 17)+ "   " +
+                matchLength(categoryID, 10) + "   " +
+                matchLength(serviceProviderID, 17);
+    }
+
+    public String matchLength(String str, int len){
+        if(str.length() > len)
+            return str.substring(0, len - 3) + "...";
+        else if(str.length() == len) return str;
+        else{
+            int spaceCount = len - str.length();
+            return str + " ".repeat(spaceCount);
+        }
     }
 }

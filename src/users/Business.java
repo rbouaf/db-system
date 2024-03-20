@@ -61,4 +61,5 @@ public final class Business extends ServiceProvider{
     protected void changeUserProfile(Connection conn, Scanner scanner) {
         super.changeUserProfile(conn, scanner);
     }
+
 }

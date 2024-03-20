@@ -108,7 +108,8 @@ public class App {
                     bothMenu(userId, user, scanner);
                     break;
                 case Client:
-                    Client.clientMenu(userId, user, scanner);
+                    Client client = new Client(user, connection);
+                    Client.clientMenu(client, connection, scanner);
                     break;
                 case ServiceProvider:
                     //todo

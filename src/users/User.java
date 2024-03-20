@@ -3,8 +3,7 @@ package users;
 import java.sql.*;
 import java.util.Scanner;
 
-public class
-User {
+public class User {
     protected String email;
     //TODO storage of a password as a string... NOT SAFE
     protected String password;
@@ -119,10 +118,11 @@ User {
         while (running){
             System.out.println("Please select one of the following options:");
             System.out.println("1. Change user profile");
-            System.out.println("2. Browse available services");
-            System.out.println("3. Become a Client");
-            System.out.println("4. Become a Service Provider");
-            System.out.println("5. Logout");
+            System.out.println("2. Check user profile");
+            System.out.println("3. Browse available services");
+            System.out.println("4. Become a Client");
+            System.out.println("5. Become a Service Provider");
+            System.out.println("6. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
             switch (choice){
@@ -130,16 +130,24 @@ User {
                     user.changeUserProfile(conn, scanner);
                     break;
                 case 2:
-                    //TODO
+                    System.out.println(user);
                     break;
                 case 3:
-                    Client client = Client.createClient(user, scanner);
-                    //add to database
                     break;
                 case 4:
-                    //todo
+                    Client client = Client.createClient(user, scanner);
+                    //add to database
+                    System.out.println(client);
+                    client.clientFromUserToDb(conn);
+                    //dangerous operation if we keep this part in the stack
+                    //but we'll need to ignore that for now
+                    Client.clientMenu(client, conn, scanner);
+                    running = false;
                     break;
                 case 5:
+                    //todo
+                    break;
+                case 6:
                     running = false;
                     System.out.println("Successfully logged out");
                     break;
@@ -171,6 +179,7 @@ User {
                         //set the new email address in the database
                         this.updateUserInDb(newEmail, userId, conn, changedType.EMAIL);
                         System.out.println("Successfully updated your email address.");
+                        this.email = newEmail;
                     }
                     else{
                         //for debugging
@@ -180,14 +189,17 @@ User {
                 case 2:
                     String newPass = this.changePassword(scanner);
                     this.updateUserInDb(newPass, userId, conn, changedType.PASSWORD);
+                    this.password = newPass;
                     break;
                 case 3:
                     String newPhoneNumber = this.changePhoneNumber(scanner);
-                    this.updateUserInDb( newPhoneNumber, userId, conn, changedType.PHONE);
+                    this.updateUserInDb(newPhoneNumber, userId, conn, changedType.PHONE);
+                    this.phone = newPhoneNumber;
                     break;
                 case 4:
                     String newAddress = this.changeAddress(scanner);
-                    this.updateUserInDb( newAddress, userId, conn, changedType.ADDRESS);
+                    this.updateUserInDb(newAddress, userId, conn, changedType.ADDRESS);
+                    this.address = newAddress;
                     break;
                 case 5:
                     running = false;
@@ -261,11 +273,10 @@ User {
         do {
             //could do a better job but for simplicity let's keep it this way for now
             email = scanner.nextLine();
-            if (!email.contains("@") || email.contains(" "))
-                System.out.println("""
-                        You did not provide a valid email address!
-                        Please enter an email address of the form example@domain.com
-                        ->\s""");
+            if (!email.contains("@") || email.contains(" ")) {
+                System.out.println("You did not provide a valid email address!");
+                System.out.print("Please enter an email address of the form example@domain.com -> ");
+            }
             else {
                 //check if that email is already used in the database
                 //todo

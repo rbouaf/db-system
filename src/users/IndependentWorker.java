@@ -10,6 +10,7 @@ public final class IndependentWorker extends ServiceProvider{
                              String accountNum, String transitNum, String bankNum) {
         super(email, password, name, phone, address, accountNum, transitNum, bankNum);
     }
+
     @Override
     public void storeNewUserInDb(Connection connection){
         super.storeNewUserInDb(connection);

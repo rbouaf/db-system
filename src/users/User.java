@@ -151,6 +151,9 @@ public class User {
                     running = false;
                     System.out.println("Successfully logged out");
                     break;
+                default:
+                    System.out.println("Invalid option!");
+                    break;
             }
         }
     }

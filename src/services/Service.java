@@ -89,6 +89,39 @@ public class Service {
         System.out.println("Successfully stored services in the database for all selected categories");
     }
 
+    public static void updateService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
+        //TODO
+        scanner.nextLine();
+        System.out.print("Please name the service you would like to update -> ");
+        boolean runnning = true;
+        while (runnning) {
+            String name = scanner.nextLine();
+            String sql = "SELECT serviceID FROM Services WHERE EXISTS " +
+                    "(SELECT * FROM Services WHERE name = ? AND providerID = ?);";
+            try{
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, name);
+                preparedStatement.setString(2, serviceProvider.getUserID(connection));
+                ResultSet resultSet = preparedStatement.executeQuery();
+                resultSet.next();
+                String serviceID = resultSet.getString(1);
+            }
+            catch (SQLTimeoutException te){
+                System.out.println("You are disconnected");
+                break;
+            }
+            catch (SQLException se) {
+                System.out.println("Could not properly fetch existing services");
+                break;
+            }
+        }
+    }
+
+    public static void getOverallRating(ServiceProvider serviceProvider, Connection connection){
+        String userID = serviceProvider.getUserID(connection);
+        String sql = "SELECT AVG(*) FROM ";
+    }
+
     private static String addNewCategoryToDb(Connection connection, Scanner scanner){
         System.out.print("Give a name to your category -> ");
         String name = scanner.nextLine().toUpperCase();
@@ -204,5 +237,9 @@ public class Service {
             //todo
             return null;
         }
+    }
+
+    public static boolean serviceExists(ServiceProvider serviceProvider, String name){
+        return false;
     }
 }

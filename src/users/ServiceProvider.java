@@ -138,11 +138,15 @@ public abstract class ServiceProvider extends User{
                     }
                     break;
                 case 3:
+                    //verify to not add services with a name already taken
                     Service.newService(serviceProvider, conn, scanner);
                     break;
                 case 4:
+                    //todo update a service
+                    Service.updateService(serviceProvider, conn, scanner);
                     break;
                 case 5:
+                    displayData(serviceProvider, conn, scanner);
                     break;
                 case 6:
                     break;
@@ -177,6 +181,35 @@ public abstract class ServiceProvider extends User{
     //check average rating across all existing services
     //check average rating for each service
 
+    public static void displayData(ServiceProvider serviceProvider, Connection conn, Scanner scanner){
+        //scanner.nextLine();
+        System.out.println("\t\tData Analytics Menu");
+        System.out.println("-------------------------------");
+        boolean running = true;
+        while (running) {
+            System.out.println("Choose an option to review data about your account and your customers");
+            System.out.println("1. Average rating for each service");
+            System.out.println("2. Overall rating, across all your services");
+            System.out.println("3. Total money earned by service");
+            System.out.println("4. Total money earned by category");
+            System.out.println("5. Leave this menu");
+            //others related to appointments
+            System.out.println("-> ");
+            int option = scanner.nextInt();
+            switch (option) {
+                case 1:
+                    //todo
+                    break;
+                case 2:
+                    //todo
+                    Service.getOverallRating(serviceProvider, conn);
+                    break;
+                case 5:
+                    running = false;
+                    break;
+            }
+        }
+    }
 
     @Override
     public String toString(){

@@ -1,3 +1,4 @@
+import services.Service;
 import users.*;
 
 import java.sql.*;
@@ -92,7 +93,7 @@ public class App {
                 //TODO WHAT IF THE USER IS BOTH A CLIENT AND A SERVICE PROVIDER
                 case Both:
                     //todo
-                    bothMenu(userId, user, scanner);
+                    bothMenu(userId, user, connection, scanner);
                     break;
                 case Client:
                     Client client = new Client(user, connection);
@@ -155,7 +156,7 @@ public class App {
         return null;
     }
 
-    public static void bothMenu(String userId, User user, Scanner scanner){
+    public static void bothMenu(String userId, User user, Connection conn, Scanner scanner){
         //todo
         //want to display all possible options, i.e. the ones for client AND service provider
         boolean running = true;
@@ -187,7 +188,7 @@ public class App {
                     break;
                 case 4:
                     //TODO
-                    //browse
+                    Service.browseServices(conn, scanner);
                     break;
                 case 5:
                     //TODO
@@ -238,7 +239,7 @@ public class App {
         catch (SQLException se){
             type2 = false;
         }
-        return (type1 && type2) ? UserType.Both :
+        return (type1 && type2) ? UserType.ServiceProvider : //todo revert back to Both
                 (type1) ? UserType.Client :
                         (type2) ? UserType.ServiceProvider : UserType.UserOnly;
     }

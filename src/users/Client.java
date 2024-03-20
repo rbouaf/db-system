@@ -96,7 +96,8 @@ public final class Client extends User{
             System.out.println("3. Book an appointment for a service");
             System.out.println("4. Leave a Review for a service");
             System.out.println("5. Browse available services");
-            System.out.println("6. Become a service provider");
+            System.out.println("6. List Account Invoices");
+            System.out.println("7. Become a service provider");
             System.out.println("8. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
@@ -117,6 +118,30 @@ public final class Client extends User{
                     Service.browseServices(conn, scanner);
                     break;
                 case 6:
+                    String userID = user.getUserID(conn);
+
+                    String clientInvoicesSQL = "SELECT issueDate, amount, serviceID, clientID FROM Invoices " +
+                            "WHERE clientID = ? ORDER BY issueDate;";
+
+                    try{
+                        PreparedStatement clientInvoicesStatement = conn.prepareStatement(clientInvoicesSQL);
+                        clientInvoicesStatement.setString(1, userID);
+
+                        ResultSet invoiceResult = clientInvoicesStatement.executeQuery();
+
+                        System.out.println("Account Invoices:");
+                        System.out.println("------------------");
+                        System.out.println("Issue Date | Invoice Amount | Service ID");
+                        while (invoiceResult.next()){
+                            System.out.println(matchLength(invoiceResult.getString(1), 11) + "  "
+                                    + matchLength(invoiceResult.getString(2), 15) + "  "
+                                    + matchLength(invoiceResult.getString(3), 10));
+                        }
+                    } catch (SQLException e) {
+                        System.out.println("Error while fetching invoice list");
+                    }
+                    break;
+                case 7:
                     //todo service
                     //serviceprovider creation menu instead
                     running = false;
@@ -196,5 +221,15 @@ public final class Client extends User{
         return part +
                 "\nCCNum: " + this.CCNum +
                 "\nCCExp: " + this.CCExp;
+    }
+
+    private static String matchLength(String str, int len){
+        if(str.length() > len)
+            return str.substring(0, len - 3) + "...";
+        else if(str.length() == len) return str;
+        else{
+            int spaceCount = len - str.length();
+            return str + " ".repeat(spaceCount);
+        }
     }
 }

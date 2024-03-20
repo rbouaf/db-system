@@ -52,8 +52,24 @@ public class Service {
             int c = scanner.nextInt();
             switch (c){
                 case 1:
-                    System.out.print("Provide the category ID you wish to filter by. You may choose more than 1 (separate them with a space). e.g. '3 1 2'\n-> ");
+                    String idnamecatsSQL = "SELECT categoryID, name FROM Categories;";
+
+                    System.out.println("Choose from these categories' IDs to filter the services. You may choose more than 1 (separate them with a space). e.g. '3 1 2' ");
+                    System.out.println("Categories:");
+                    System.out.println("------------");
                     scanner.nextLine();
+
+                    try{
+                        PreparedStatement categoriesDetails = connection.prepareStatement(idnamecatsSQL);
+                        ResultSet categoriesResults = categoriesDetails.executeQuery();
+                        while(categoriesResults.next()){
+                            System.out.println(categoriesResults.getString("categoryID") +"- " + categoriesResults.getString("name"));
+                        }
+                    } catch (SQLException e) {
+                        System.out.println("Failed to load the categories with their ids");
+                    }
+
+                    System.out.print("-> ");
                     String categories = scanner.nextLine();
                     fetchAvailableServiceList(connection,categories);
                     System.out.println("Results for categories: " + categories.replaceAll(" ", ","));
@@ -64,6 +80,7 @@ public class Service {
                     printAvailableServices();
                     break;
                 case 3:
+                    // Goes back to user menu
                     return;
                 default:
                     System.out.println("Invalid input - Please try again\n");
@@ -85,7 +102,7 @@ public class Service {
                     "categoryID = ? OR".repeat(categories.length -1) + " categoryID = ?;";
         }
 
-        System.out.println(fetchServicesSQL);
+        //System.out.println(fetchServicesSQL);
         availableServices.clear();
         try{
             PreparedStatement fetchStatement = connection.prepareStatement(fetchServicesSQL);
@@ -359,7 +376,7 @@ public class Service {
                 matchLength(serviceProviderID, 17);
     }
 
-    public String matchLength(String str, int len){
+    private String matchLength(String str, int len){
         if(str.length() > len)
             return str.substring(0, len - 3) + "...";
         else if(str.length() == len) return str;

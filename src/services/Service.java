@@ -32,6 +32,7 @@ public class Service {
     }
 
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
+        scanner.nextLine();
         System.out.print("Please name your new service -> ");
         String name = scanner.nextLine();
         //check if that service from that service provider already exists
@@ -39,8 +40,16 @@ public class Service {
         System.out.print("Please give a description of your service -> ");
         String description = scanner.nextLine();
         System.out.print("Set the price rate of your service (decimal) -> ");
-        float priceRate = Float.parseFloat(scanner.nextLine());
-
+        float priceRate;
+        try {
+            priceRate = Float.parseFloat(scanner.nextLine());
+        }
+        catch (NumberFormatException ne){
+            System.out.println("Could not parse the floating point for price");
+            System.out.println("Aborting");
+            return;
+        }
+        System.out.println();
         LinkedList<String> list = getCategoriesFromDatabase(connection);
         String str = getCategoriesAsStr(list);
         System.out.println(str);
@@ -59,6 +68,7 @@ public class Service {
             else{
                 //they are selecting the index + 1 of list var
                 LinkedList<String> parsed = parseChoice(list, choice);
+                //also, choices must be unique (not picking twice #1 for e.g.)
                 //for debugging purposes
                 if (parsed != null) {
                     choices.addAll(parsed);
@@ -69,13 +79,14 @@ public class Service {
         for (String category : choices) {
             String categoryID = getCategoryId(connection, category);
             if (categoryID == null){
-                System.out.println("An error occured retrieving categoryid\nAborting...");
+                System.out.println("An error occurred retrieving categoryID\nAborting...");
                 break;
             }
             Service service = new Service(name, description, priceRate,
                     categoryID, serviceProvider.getUserID(connection));
             service.storeInDb(connection);
         }
+        System.out.println("Successfully stored services in the database for all selected categories");
     }
 
     private static String addNewCategoryToDb(Connection connection, Scanner scanner){
@@ -118,8 +129,10 @@ public class Service {
         if (list == null) return null;
         String str = "";
         int counter = 1;
-        for (String item : list)
+        for (String item : list) {
             str += (counter + "." + item + "\n");
+            counter++;
+        }
         return str;
     }
 
@@ -129,12 +142,12 @@ public class Service {
         for (String index : arrChoices){
             try{
                 //num given doesn't start at 0
-                String category = list.get(Integer.getInteger(index) - 1);
+                String category = list.get(Integer.parseInt(index) - 1);
                 toReturn.add(category);
                 if (category == null) throw new NullPointerException();
             }
             catch (NullPointerException ne){
-                System.out.println("You must give a choice being an integer!");
+                System.out.println("You must select a choice being an integer!");
                 return null;
             }
             catch (IndexOutOfBoundsException ie){
@@ -163,10 +176,11 @@ public class Service {
             preparedStatement.setString(9, this.serviceProviderID);
             preparedStatement.execute();
             //may need to remove bcz in a loop
-            System.out.println("Successfully saved the service");
+            //System.out.println("Successfully saved the service");
         }
         catch (SQLTimeoutException te){
             System.out.println("Bad connection, could not save the service to the database");
+            //must shutdown at that time
         }
         catch (SQLException se){
             //todo

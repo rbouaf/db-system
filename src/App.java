@@ -1,7 +1,4 @@
-import users.Business;
-import users.Client;
-import users.IndependentWorker;
-import users.User;
+import users.*;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -102,7 +99,6 @@ public class App {
             String userPasswd = userRes.getString(6);
             User user = new User(userEmail, userPasswd, userName, userPhone, userAddress);
             UserType userType = checkUserType(connection, userId);
-            //System.out.println(user);
             switch (userType){
                 //TODO WHAT IF THE USER IS BOTH A CLIENT AND A SERVICE PROVIDER
                 case Both:
@@ -115,6 +111,13 @@ public class App {
                     break;
                 case ServiceProvider:
                     //todo
+                    ServiceProvider serviceProvider = ServiceProvider.serviceProviderFromUser(user, connection);
+                    if (serviceProvider == null){
+                        System.out.println("An error occured... user is null");
+                    }
+                    else{
+                        ServiceProvider.serviceProviderMenu(serviceProvider, connection, scanner);
+                    }
                     break;
                 case UserOnly:
                     User.userMenu(user, connection, scanner);

@@ -3,12 +3,16 @@ package users;
 import services.Service;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public abstract class ServiceProvider extends User{
-    protected String accountNum;
-    protected String transitNum;
-    protected String bankNum;
+    //todo for now tmp final
+    protected final String accountNum;
+    protected final String transitNum;
+    protected final String bankNum;
     protected float totalEarned;
 
     public ServiceProvider(String email, String password, String name, String phone, String address,
@@ -18,6 +22,14 @@ public abstract class ServiceProvider extends User{
         this.transitNum = transitNum;
         this.bankNum = bankNum;
         this.totalEarned = 0.0F;
+    }
+    public ServiceProvider(String email, String password, String name, String phone, String address,
+                           String accountNum, String transitNum, String bankNum, float totalEarned) {
+        super(email, password, name, phone, address);
+        this.accountNum = accountNum;
+        this.transitNum = transitNum;
+        this.bankNum = bankNum;
+        this.totalEarned = totalEarned;
     }
 
     public static ServiceProvider newServiceProviderMenu(User user, Connection connection, Scanner scanner){
@@ -44,6 +56,106 @@ public abstract class ServiceProvider extends User{
         }
         return null;
     }
+
+    public static ServiceProvider serviceProviderFromUser(User user, Connection connection){
+        //first check if business or indep
+        String userID = user.getUserID(connection);
+
+        try{
+            String sqlBasic = "SELECT accountNum,transitNum,bankNum,totalEarned FROM ServiceProviders " +
+                    "WHERE userID = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlBasic);
+            preparedStatement.setString(1, userID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            String accNum = resultSet.getString(1);
+            String transitNum = resultSet.getString(2);
+            String bankNum = resultSet.getString(3);
+            float totalEarned= Float.parseFloat(resultSet.getString(4));
+            String sqlBus = "SELECT NEQ FROM Businesses WHERE userID = ?;";
+            preparedStatement = connection.prepareStatement(sqlBus);
+            preparedStatement.setString(1, userID);
+            try {
+                resultSet = preparedStatement.executeQuery();
+                resultSet.next();
+                String neq = resultSet.getString(1);
+                return new Business(user, accNum, transitNum, bankNum, totalEarned, neq);
+            }
+            catch (SQLException se){
+                //it is not a business
+                String sqlIndep = "SELECT socialNumber FROM IndependentWorkers WHERE userID = ?;";
+                preparedStatement = connection.prepareStatement(sqlIndep);
+                preparedStatement.setString(1, userID);
+                resultSet = preparedStatement.executeQuery();
+                //todo sketchy way of doing the operation
+                resultSet.next();
+                String ssn = resultSet.getString(1);
+                return new IndependentWorker(user, accNum, transitNum, bankNum, totalEarned, ssn);
+            }
+        }
+        catch (SQLException se){
+            //todo
+            System.out.println("Error occured at service provider from user method");
+            System.out.println(se);
+        }
+        catch (NumberFormatException ne){
+            System.out.println("Wrong value saved in db for a float??");
+        }
+        return null;
+    }
+
+    public static void serviceProviderMenu(ServiceProvider serviceProvider, Connection conn, Scanner scanner){
+        boolean running = true;
+        while (running){
+            System.out.println("\n\t\tWelcome " + serviceProvider.name);
+            System.out.println("-------------------------------------------------");
+            System.out.println("Please select one the following options:");
+            //depends on type of service provider
+            System.out.println("1. Change user profile");
+            System.out.println("2. Check user profile");
+            System.out.println("3. Post a new service");
+            //the below option is for how many clients booked, how much earned
+            //how much earned by service, etc.
+            System.out.println("4. Update a service");
+            System.out.println("5. Check useful analytics");
+            System.out.println("6. Browse available services");
+            System.out.println("7. Become a client");
+            System.out.println("8. Logout");
+            System.out.print("-> ");
+            int choice = scanner.nextInt();
+            switch (choice){
+                case 1:
+                    //todo may need to change if we remove final fields
+                    serviceProvider.changeUserProfile(conn, scanner);
+                    break;
+                case 2:
+                    if (serviceProvider instanceof Business business) {
+                        System.out.println(business);
+                    }
+                    else{
+                        IndependentWorker indep = (IndependentWorker) serviceProvider;
+                        System.out.println(indep);
+                    }
+                    break;
+                case 3:
+                    Service.newService(serviceProvider, conn, scanner);
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    //todo may remove that option
+                    break;
+                case 8:
+                    running = false;
+                    System.out.println("Successfully logged out");
+                    break;
+            }
+        }
+    }
     public abstract ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner);
 
     //may need to do some basic implementation
@@ -55,10 +167,6 @@ public abstract class ServiceProvider extends User{
         super.changeUserProfile(conn, scanner);
     }
 
-    public void postNewService(Connection connection, Scanner scanner){
-        Service.newService(this, connection, scanner);
-    }
-
     public float getTotalEarned(){return this.totalEarned;}
 
     //todo for menu
@@ -68,4 +176,14 @@ public abstract class ServiceProvider extends User{
     //check average money
     //check average rating across all existing services
     //check average rating for each service
+
+
+    @Override
+    public String toString(){
+        return super.toString() +
+                "Account Number: " + this.accountNum +
+                "\nTransit Number" + this.transitNum +
+                "\nBank Branch Number: " + this.bankNum +
+                "\nTotal Earned: " + this.totalEarned + "\n";
+    }
 }

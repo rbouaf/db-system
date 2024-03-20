@@ -18,6 +18,7 @@ public class Service {
     String serviceProviderID;
     String categoryID;
     //need to check all the services and how many different categories
+    private static LinkedList<Service> servicesList = new LinkedList<>();
 
     public Service(String name, String description, float priceRate, String categoryID, String serviceProviderID){
         this.name = name;
@@ -29,6 +30,14 @@ public class Service {
         this.avgTimeToComplete = 0;
         this.serviceProviderID = serviceProviderID;
         this.categoryID = categoryID;
+    }
+
+    public static void updateServiceList(Connection connection){
+
+    }
+
+    public static void printAvailableServices(String categories){
+
     }
 
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
@@ -191,4 +200,6 @@ public class Service {
             return null;
         }
     }
+
+
 }

@@ -135,8 +135,7 @@ public class User {
                     System.out.println(user);
                     break;
                 case 3:
-                    Service.fetchAvailableServiceList(conn);
-                    Service.printAvailableServices();
+                    Service.browseServices(conn, scanner);
                     break;
                 case 4:
                     Client client = Client.createClient(user, scanner);

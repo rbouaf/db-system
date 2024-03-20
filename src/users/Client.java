@@ -1,5 +1,7 @@
 package users;
 
+import services.Service;
+
 import java.sql.*;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
@@ -111,6 +113,7 @@ public final class Client extends User{
                 case 4:
                     break;
                 case 5:
+                    Service.browseServices(conn, scanner);
                     break;
                 case 6:
                     //todo service

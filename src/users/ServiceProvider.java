@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public abstract class ServiceProvider extends User{
+    //todo for now tmp final
     protected final String accountNum;
     protected final String transitNum;
     protected final String bankNum;
@@ -87,6 +88,7 @@ public abstract class ServiceProvider extends User{
     public static ServiceProvider serviceProviderFromUser(User user, Connection connection){
         //first check if business or indep
         String userID = user.getUserID(connection);
+
         try{
             String sqlBasic = "SELECT accountNum,transitNum,bankNum,totalEarned FROM ServiceProviders " +
                     "WHERE userID = ?";
@@ -178,7 +180,7 @@ public abstract class ServiceProvider extends User{
                     Service.updateService(serviceProvider, conn, scanner);
                     break;
                 case 6:
-                    //todo update a schedule
+                    Service.browseServices(conn, scanner);
                     break;
                 case 7:
                     displayData(serviceProvider, conn, scanner);

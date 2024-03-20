@@ -5,6 +5,7 @@ import users.ServiceProvider;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Service {
@@ -44,13 +45,53 @@ public class Service {
         this.categoryID = categoryID;
     }
 
-    public static void fetchAvailableServiceList(Connection connection){
-        String fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
-                "categoryID, providerID FROM Services WHERE availability = \"TRUE\";";
+    public static void browseServices(Connection connection, Scanner scanner){
+        fetchAvailableServiceList(connection, "");
+        printAvailableServices();
+        while(true){
+            int c = scanner.nextInt();
+            switch (c){
+                case 1:
+                    System.out.print("Provide the category ID you wish to filter by. You may choose more than 1 (separate them with a space). e.g. '3 1 2'\n-> ");
+                    scanner.nextLine();
+                    String categories = scanner.nextLine();
+                    fetchAvailableServiceList(connection,categories);
+                    System.out.println("Results for categories: " + categories.replaceAll(" ", ","));
+                    printAvailableServices();
+                    break;
+                case 2:
+                    fetchAvailableServiceList(connection, "");
+                    printAvailableServices();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid input - Please try again\n");
+                    printAvailableServices();
+                    break;
+            }
+        }
+    }
 
+    public static void fetchAvailableServiceList(Connection connection, String categoryID){
+        String fetchServicesSQL;
+        String[] categories = categoryID.equals("") ? new String[0] : categoryID.split(" ");
+        if(categories.length == 0)
+            fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
+                "categoryID, providerID FROM Services WHERE availability = \"TRUE\" ;";
+        else{
+            fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
+                    "categoryID, providerID FROM Services WHERE availability = \"TRUE\" AND " +
+                    "categoryID = ? OR".repeat(categories.length -1) + " categoryID = ?;";
+        }
+
+        System.out.println(fetchServicesSQL);
         availableServices.clear();
         try{
             PreparedStatement fetchStatement = connection.prepareStatement(fetchServicesSQL);
+            for (int i = 0; i < categories.length; i++){
+                fetchStatement.setString(i+1, categories[i]);
+            }
             ResultSet servicesResult = fetchStatement.executeQuery();
             while(servicesResult.next()){
                 availableServices.add(new Service(servicesResult.getString("name"),
@@ -77,6 +118,7 @@ public class Service {
         for (Service s : availableServices) {
             System.out.println(s);
         }
+        System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
     }
 
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
@@ -283,6 +325,7 @@ public class Service {
         }
         catch (SQLException se){
             //todo
+            System.out.println("There was an issue with the provided category ID");
             return null;
         }
     }

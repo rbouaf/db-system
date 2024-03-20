@@ -149,6 +149,7 @@ public abstract class ServiceProvider extends User{
                     displayData(serviceProvider, conn, scanner);
                     break;
                 case 6:
+                    Service.browseServices(conn, scanner);
                     break;
                 case 7:
                     //todo may remove that option

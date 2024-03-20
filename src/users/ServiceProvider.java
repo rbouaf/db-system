@@ -1,5 +1,7 @@
 package users;
 
+import services.Service;
+
 import java.sql.Connection;
 import java.util.Scanner;
 
@@ -54,7 +56,7 @@ public abstract class ServiceProvider extends User{
     }
 
     public void postNewService(Connection connection, Scanner scanner){
-
+        Service.newService(this, connection, scanner);
     }
 
     public float getTotalEarned(){return this.totalEarned;}

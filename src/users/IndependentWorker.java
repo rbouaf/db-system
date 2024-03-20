@@ -12,6 +12,11 @@ public final class IndependentWorker extends ServiceProvider{
     }
 
     @Override
+    public ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner) {
+        return null;
+    }
+
+    @Override
     public void storeNewUserInDb(Connection connection){
         super.storeNewUserInDb(connection);
         String sqlStatement = "";

@@ -1,3 +1,3 @@
-package appmnts;
+package services;
 public class Appointments {
 }

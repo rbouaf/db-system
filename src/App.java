@@ -36,6 +36,7 @@ public class App {
                         Connection connection = DriverManager.getConnection(DB_URL, USER, PASS);
                         User user = registerNewUser(connection, scanner);
                         User.userMenu(user, connection, scanner);
+                        connection.close();
                     }
                     catch (SQLTimeoutException te){
                         System.out.println("Connection failed to database, because of timeout");
@@ -53,6 +54,7 @@ public class App {
                 case 3:
                     running = false;
                     System.out.println("Thank you for doing business with group 104");
+                    scanner.close();
                     break;
                 default:
                     System.out.println("Invalid option!");
@@ -120,6 +122,7 @@ public class App {
                 default:
                     throw new IllegalArgumentException();
             }
+            connection.close();
         }
         catch (SQLException se){
             //todo

@@ -9,6 +9,12 @@ public final class Business extends ServiceProvider{
     public Business(String email, String password, String name, String phone, String address, String accountNum, String transitNum, String bankNum) {
         super(email, password, name, phone, address, accountNum, transitNum, bankNum);
     }
+
+    @Override
+    public ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner) {
+        return null;
+    }
+
     @Override
     public void storeNewUserInDb(Connection connection){
         super.storeNewUserInDb(connection);

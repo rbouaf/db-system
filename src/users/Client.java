@@ -114,6 +114,8 @@ public final class Client extends User{
                     break;
                 case 6:
                     //todo service
+                    //serviceprovider creation menu instead
+                    ServiceProvider serviceProvider = ServiceProvider.newServiceProviderMenu(user, conn, scanner);
                     break;
                 case 8:
                     running = false;

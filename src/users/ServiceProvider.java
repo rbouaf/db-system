@@ -149,8 +149,9 @@ public abstract class ServiceProvider extends User{
             System.out.println("6. Update a schedule");
             System.out.println("7. Check useful analytics");
             System.out.println("8. Browse available services");
-            System.out.println("9. Become a client");
-            System.out.println("10. Logout");
+            System.out.println("9. View invoices");
+            System.out.println("10. Become a client");
+            System.out.println("11. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
             switch (choice){
@@ -180,17 +181,43 @@ public abstract class ServiceProvider extends User{
                     Service.updateService(serviceProvider, conn, scanner);
                     break;
                 case 6:
-                    Service.browseServices(conn, scanner);
+
                     break;
                 case 7:
                     displayData(serviceProvider, conn, scanner);
                     break;
-                case 8:
+                case 8: // Browse Services
+                    Service.browseServices(conn, scanner);
                     break;
-                case 9:
-                    //todo may remove that option
+                case 9: // View Invoices
+                    String userID = serviceProvider.getUserID(conn);
+
+                    String serviceInvoicesSQL = "SELECT I.issueDate, I.amount, I.serviceID, I.clientID FROM Invoices I, Services S " +
+                            "WHERE S.providerID = ? AND S.serviceID = I.serviceID ORDER BY I.issueDate;";
+
+                    try{
+                        PreparedStatement serviceInvoicesStatement = conn.prepareStatement(serviceInvoicesSQL);
+                        serviceInvoicesStatement.setString(1, userID);
+
+                        ResultSet invoiceResult = serviceInvoicesStatement.executeQuery();
+
+                        System.out.println("Account Invoices:");
+                        System.out.println("------------------");
+                        System.out.println("Issue Date | Invoice Amount | Service ID | Client ID");
+                        while (invoiceResult.next()){
+                            System.out.println(matchLength(invoiceResult.getString(1), 11) + "  "
+                                    + matchLength(invoiceResult.getString(2), 15) + "  "
+                                    + matchLength(invoiceResult.getString(3), 11) + "  "
+                                    + invoiceResult.getString(4));
+                        }
+                    } catch (SQLException e) {
+                        System.out.println("Error while fetching invoice list");
+                    }
                     break;
                 case 10:
+                    //todo may remove that option
+                    break;
+                case 11:
                     running = false;
                     System.out.println("Successfully logged out");
                     break;
@@ -255,5 +282,15 @@ public abstract class ServiceProvider extends User{
                 "\nTransit Number" + this.transitNum +
                 "\nBank Branch Number: " + this.bankNum +
                 "\nTotal Earned: " + this.totalEarned + "\n";
+    }
+
+    private static String matchLength(String str, int len){
+        if(str.length() > len)
+            return str.substring(0, len - 3) + "...";
+        else if(str.length() == len) return str;
+        else{
+            int spaceCount = len - str.length();
+            return str + " ".repeat(spaceCount);
+        }
     }
 }

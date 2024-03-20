@@ -235,7 +235,7 @@ public class App {
         catch (SQLException se){
             type2 = false;
         }
-        return (type1 && type2) ? UserType.Both :
+        return (type1 && type2) ? UserType.ServiceProvider : //todo revert back to Both
                 (type1) ? UserType.Client :
                         (type2) ? UserType.ServiceProvider : UserType.UserOnly;
     }

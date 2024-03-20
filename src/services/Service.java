@@ -80,6 +80,7 @@ public class Service {
                     printAvailableServices();
                     break;
                 case 3:
+                    // Goes back to user menu
                     return;
                 default:
                     System.out.println("Invalid input - Please try again\n");
@@ -359,7 +360,7 @@ public class Service {
                 matchLength(serviceProviderID, 17);
     }
 
-    public String matchLength(String str, int len){
+    private String matchLength(String str, int len){
         if(str.length() > len)
             return str.substring(0, len - 3) + "...";
         else if(str.length() == len) return str;

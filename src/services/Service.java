@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Service {
+    //may be null
+    private String serviceId;
     private String name;
     private String description;
     private float priceRate;
@@ -19,9 +21,11 @@ public class Service {
     String serviceProviderID;
     String categoryID;
     //need to check all the services and how many different categories
+    String categoryName;
     private static LinkedList<Service> availableServices = new LinkedList<>();
 
     public Service(String name, String description, float priceRate, String categoryID, String serviceProviderID){
+        this.serviceId = null;
         this.name = name;
         this.description = description;
         this.priceRate = priceRate;
@@ -31,6 +35,7 @@ public class Service {
         this.avgTimeToComplete = 0;
         this.serviceProviderID = serviceProviderID;
         this.categoryID = categoryID;
+        this.categoryName = null;
     }
 
     private Service(String name, String description, float priceRate, int numTimesProvided, float rating, int avgTimeToComplete, String categoryID, String serviceProviderID){
@@ -44,6 +49,21 @@ public class Service {
         this.serviceProviderID = serviceProviderID;
         this.categoryID = categoryID;
     }
+
+    public Service(String serviceId, String name, String description, float priceRate, int numTimesProvided, float rating, int avgTimeToComplete, String categoryID, String categoryName, String serviceProviderID){
+        this.serviceId = serviceId;
+        this.name = name;
+        this.description = description;
+        this.priceRate = priceRate;
+        this.availability = true;
+        this.numTimesProvided = numTimesProvided;
+        this.rating = rating;
+        this.avgTimeToComplete = avgTimeToComplete;
+        this.serviceProviderID = serviceProviderID;
+        this.categoryID = categoryID;
+        this.categoryName = categoryName;
+    }
+
 
     public static void browseServices(Connection connection, Scanner scanner){
         fetchAvailableServiceList(connection, "");
@@ -92,14 +112,16 @@ public class Service {
 
     public static void fetchAvailableServiceList(Connection connection, String categoryID){
         String fetchServicesSQL;
-        String[] categories = categoryID.equals("") ? new String[0] : categoryID.split(" ");
+        String[] categories = categoryID.isEmpty() ? new String[0] : categoryID.split(" ");
         if(categories.length == 0)
-            fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
-                "categoryID, providerID FROM Services WHERE availability = \"TRUE\" ;";
+            fetchServicesSQL = "SELECT s.serviceid,s.name, s.description, s.pricerate, s.numTimesProvided, s.rating, s.avgTimeToComplete, " +
+                "c.name AS category,c.categoryid, s.providerID FROM Services AS s JOIN Categories AS c ON s.categoryid = c.categoryid " +
+                    "WHERE s.availability = \"TRUE\" ;";
         else{
-            fetchServicesSQL = "SELECT name, description, pricerate, numTimesProvided, rating, avgTimeToComplete, " +
-                    "categoryID, providerID FROM Services WHERE availability = \"TRUE\" AND " +
-                    "categoryID = ? OR".repeat(categories.length -1) + " categoryID = ?;";
+            fetchServicesSQL = "SELECT s.serviceid,s.name, s.description, s.pricerate, s.numTimesProvided, s.rating, s.avgTimeToComplete, " +
+                    "c.name AS category,c.categoryid, s.providerID FROM Services AS s JOIN Categories AS c ON s.categoryid = c.categoryid " +
+                    "WHERE availability = \"TRUE\" AND " +
+                    "c.categoryID = ? OR".repeat(categories.length -1) + " c.categoryID = ?;";
         }
 
         //System.out.println(fetchServicesSQL);
@@ -111,13 +133,16 @@ public class Service {
             }
             ResultSet servicesResult = fetchStatement.executeQuery();
             while(servicesResult.next()){
-                availableServices.add(new Service(servicesResult.getString("name"),
+                availableServices.add(new Service(
+                        servicesResult.getString("serviceid"),
+                        servicesResult.getString("name"),
                         servicesResult.getString("description"),
                         Float.parseFloat(servicesResult.getString("pricerate")),
                         Integer.parseInt(servicesResult.getString("numTimesProvided")),
                         Float.parseFloat(servicesResult.getString("rating")),
                         Integer.parseInt(servicesResult.getString("avgTimeToComplete")),
-                        servicesResult.getString("categoryID"),
+                        servicesResult.getString("category"),
+                        servicesResult.getString("categoryid"),
                         servicesResult.getString("providerID")));
             }
 
@@ -131,7 +156,7 @@ public class Service {
     public static void printAvailableServices(){
         System.out.println("List of Available Services:");
         System.out.println("----------------------------");
-        System.out.println("name\t\t\t | description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryID | serviceProviderID");
+        System.out.println("serviceId\t | name\t\t\t\t| description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryId\t\t| categoryName\t| serviceProviderID");
         for (Service s : availableServices) {
             System.out.println(s);
         }
@@ -228,6 +253,7 @@ public class Service {
     public static void getOverallRating(ServiceProvider serviceProvider, Connection connection){
         String userID = serviceProvider.getUserID(connection);
         String sql = "SELECT AVG(*) FROM ";
+        //todo
     }
 
     private static String addNewCategoryToDb(Connection connection, Scanner scanner){
@@ -244,7 +270,7 @@ public class Service {
         catch (SQLException se){
             //todo
             System.out.println("Error in adding a new category in the database");
-            System.out.println(se);
+            System.out.println("Error code: " + se.getErrorCode() + "\nSQL state: " + se.getSQLState());
             return null;
         }
     }
@@ -262,6 +288,7 @@ public class Service {
         }
         catch (SQLException se){
             //todo
+            System.out.println("Error code: " + se.getErrorCode() + "\nSQL state: " + se.getSQLState());
         }
         return list;
     }
@@ -366,12 +393,14 @@ public class Service {
 
     @Override
     public String toString() {
-        return matchLength(name, 16) + "   " +
+        return matchLength(serviceId, 10) + "    " +
+                matchLength(name, 16) + "   " +
                 matchLength(description, 21)  + "    " +
-                matchLength(String.format("%.2f", priceRate), 9) + " " +
+                matchLength(String.format("%.2f", priceRate), 10) + " " +
                 matchLength(String.format("%d", numTimesProvided), 16)+ "   " +
                 matchLength(String.format("%.2f", rating), 6) + "   " +
                 matchLength(String.format("%d", avgTimeToComplete), 17)+ "   " +
+                matchLength(categoryName, 20) + "   " +
                 matchLength(categoryID, 10) + "   " +
                 matchLength(serviceProviderID, 17);
     }

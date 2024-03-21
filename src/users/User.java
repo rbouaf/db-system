@@ -115,7 +115,7 @@ public class User {
         //todo
         //browse available services -> if want to book, must become a client
         boolean running = true;
-        System.out.println("\t\t\tWelcome " + user.getName());
+        System.out.println("\n\t\t\tWelcome " + user.getName());
         System.out.println("---------------------------------------------");
         while (running){
             System.out.println("Please select one of the following options:");

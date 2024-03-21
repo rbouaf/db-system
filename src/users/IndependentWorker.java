@@ -26,13 +26,6 @@ public final class IndependentWorker extends ServiceProvider{
     }
 
     @Override
-    public ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner) {
-        return null;
-    }
-
-
-
-    @Override
     public void storeNewServiceProvider(Connection connection){
         super.storeNewServiceProvider(connection);
         String sqlStatement = "INSERT INTO IndependentWorkers (userID,socialNumber) " +
@@ -44,7 +37,8 @@ public final class IndependentWorker extends ServiceProvider{
             preparedStatement.execute();
         }
         catch (SQLException se){
-            //todo
+            System.out.println("An error occured trying to insert a new independent worker into the database");
+            System.out.println("Error code: " + se.getErrorCode() + "\nSQL state: " + se.getSQLState());
         }
     }
 

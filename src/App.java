@@ -25,9 +25,7 @@ public class App {
             System.out.println("2. Login");
             System.out.println("3. Root Access (get access to special commands)");
             System.out.println("4. Quit the application");
-            //add root mode
             //root mode allows to see different queries
-            //check how many users are simple users and not provs or clients
 
             System.out.print("Please select an option -> ");
             int option = scanner.nextInt();
@@ -48,7 +46,7 @@ public class App {
                     }
                     catch (SQLException e) {
                         //TODO
-                        System.out.println(e);
+                        System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
                     }
                     break;
                 case 2:
@@ -67,7 +65,7 @@ public class App {
                     }
                     catch (SQLException e) {
                         //TODO
-                        System.out.println(e);
+                        System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
                     }
                     break;
                 case 4:
@@ -136,6 +134,7 @@ public class App {
         }
         catch (SQLException se){
             //todo
+            System.out.println("Error code: " + se.getErrorCode() + "\nSQL state: " + se.getSQLState());
         }
         catch (IllegalArgumentException ie){
             //todo something else, may need to change if users allowed to be
@@ -151,7 +150,6 @@ public class App {
         //process email address first, or should we do both at the same time (harder to detect?)
         String sql = "SELECT userID, name, email, phone, address, password " +
                     "FROM Users WHERE email = ? AND password = ?;";
-        //String id = null;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, email);
@@ -167,9 +165,8 @@ public class App {
             }
         }
         catch (SQLException se){
-            System.out.println("An error occurred when trying to login... please check your internet connection");
-            //or an error occurred for
-        }
+            System.out.println("An error occurred in the database when trying to login. Cancelling...");
+            System.out.println("Error code: " + se.getErrorCode() + "\nSQL state: " + se.getSQLState());        }
         return null;
     }
 
@@ -260,6 +257,7 @@ public class App {
                 (type1) ? UserType.Client :
                         (type2) ? UserType.ServiceProvider : UserType.UserOnly;
     }
+
     private enum UserType{
         Client, ServiceProvider, Both, UserOnly
     }

@@ -7,10 +7,19 @@ import java.util.Scanner;
 public class App {
     private static final String JDBC_DRIVER = "com.ibm.db2.jcc.DB2Driver";
     private static final String DB_URL = "jdbc:db2://winter2024-comp421.cs.mcgill.ca:50000/comp421";
-    private static final String USER = "cs421g104"; //TODO: this will be changed before submitting
-    private static final String PASS = "comp421&&"; //TODO: this will be changed before submitting
+    private static final String USER = System.getenv("SOCSUSER");;
+    private static final String PASS = System.getenv("SOCSPASSWD");
 
     public static void main(String[] args) {
+        if(USER == null && (System.getenv("SOCSUSER")) == null) {
+            System.err.println("Error!! do not have a username to connect to the database!");
+            System.exit(1);
+        }
+        if(PASS == null && (System.getenv("SOCSPASSWD")) == null) {
+            System.err.println("Error!! do not have a password to connect to the database!");
+            System.exit(1);
+        }
+
         try {
             Class.forName(JDBC_DRIVER);
         }

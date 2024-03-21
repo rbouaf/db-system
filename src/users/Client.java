@@ -115,50 +115,6 @@ public final class Client extends User{
                 case 4:
                     scanner.nextLine();
                     Service.leaveAReview(conn, scanner, clientID);
-//                    String clientServicesSQL = "SELECT invoiceID, issueDate, amount, serviceID, clientID FROM Invoices " +
-//                            "WHERE clientID = ? " +
-//                            "AND (invoiceID, clientID, serviceID) NOT EXISTS " +
-//                            "(SELECT invoiceID, clientID, serviceID FROM Reviews) " +
-//                            "ORDER BY issueDate;";
-//                    try{
-//                        PreparedStatement clientInvoicesStatement = conn.prepareStatement(clientServicesSQL);
-//                        clientInvoicesStatement.setString(1, clientID);
-//
-//                        ResultSet invoiceResult = clientInvoicesStatement.executeQuery();
-//
-//                        System.out.println("Choose a service you did not review:");
-//                        System.out.println("------------------");
-//                        System.out.println("InvoiceID | Issue Date | Invoice Amount | Service ID");
-//                        while (invoiceResult.next()){
-//                            System.out.println(matchLength(invoiceResult.getString(1), 10) + "  "
-//                                    + matchLength(invoiceResult.getString(2), 11) + "  "
-//                                    + matchLength(invoiceResult.getString(3), 15) + "  "
-//                                    + matchLength(invoiceResult.getString(4), 10));
-//                        }
-//
-//                        System.out.print("-> ");
-//                        String invoiceID = scanner.nextLine();
-//
-//                        System.out.println("Rate the service from 1 to 10:");
-//                        System.out.print("-> ");
-//                        int rating = scanner.nextInt();
-//
-//                        scanner.nextLine();
-//
-//                        System.out.print("Write your review:\n-> ");
-//                        String review = scanner.nextLine();
-//
-////                        String reviewSQL = "INSERT INTO Reviews (clientID, ServiceID, invoiceID, rating, userComment) VALUES (?,?,?,?,?);";
-////
-////                        try{
-////                            PreparedStatement reviewsStatement = conn.prepareStatement(reviewSQL);
-////                            reviewsStatement.setString(1, clientID);
-////
-////                        }
-//                    } catch (SQLException e) {
-//                        System.out.println("Error while fetching invoice list");
-//                    }
-//                    System.out.println("");
                     break;
                 case 5:
                     Service.browseServices(conn, scanner);
@@ -252,7 +208,32 @@ public final class Client extends User{
                     this.address = newAddress;
                     break;
                 case 5:
-                    //todo change CC info
+                    System.out.print("Input New Credit Card Number (XXXX XXXX XXXX XXXX): ");
+                    String CCNum = scanner.nextLine();
+                    System.out.print("Input New Credit Card Expiry Date (YYYY-MM-DD): ");
+                    String CCExp = scanner.nextLine();
+
+                    String ccSQL = "UPDATE Clients " +
+                            "SET CCNum = ?, CCExp = ? " +
+                            "WHERE userID = ?;";
+
+                    try{
+                        PreparedStatement changeCC = conn.prepareStatement(ccSQL);
+
+                        changeCC.setString(1, CCNum);
+                        changeCC.setString(2, CCExp);
+                        changeCC.setString(3, userId);
+
+                        changeCC.executeUpdate();
+
+                        this.CCExp = CCExp;
+                        this.CCNum = CCNum;
+
+                        System.out.println("Credit Card Information was updated successfully");
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                        System.out.println("There was an issue in updating the credit card");
+                    }
                 case 6:
                     running = false;
                     System.out.println("Returning to account menu.");

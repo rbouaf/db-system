@@ -71,6 +71,7 @@ public class App {
                 case 4:
                     running = false;
                     System.out.println("Thank you for doing business with group 104");
+
                     scanner.close();
                     break;
                 default:

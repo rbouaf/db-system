@@ -113,6 +113,52 @@ public final class Client extends User{
                     Appointments.newAppointmentMenu(user, conn, scanner);
                     break;
                 case 4:
+                    scanner.nextLine();
+                    Service.leaveAReview(conn, scanner, clientID);
+//                    String clientServicesSQL = "SELECT invoiceID, issueDate, amount, serviceID, clientID FROM Invoices " +
+//                            "WHERE clientID = ? " +
+//                            "AND (invoiceID, clientID, serviceID) NOT EXISTS " +
+//                            "(SELECT invoiceID, clientID, serviceID FROM Reviews) " +
+//                            "ORDER BY issueDate;";
+//                    try{
+//                        PreparedStatement clientInvoicesStatement = conn.prepareStatement(clientServicesSQL);
+//                        clientInvoicesStatement.setString(1, clientID);
+//
+//                        ResultSet invoiceResult = clientInvoicesStatement.executeQuery();
+//
+//                        System.out.println("Choose a service you did not review:");
+//                        System.out.println("------------------");
+//                        System.out.println("InvoiceID | Issue Date | Invoice Amount | Service ID");
+//                        while (invoiceResult.next()){
+//                            System.out.println(matchLength(invoiceResult.getString(1), 10) + "  "
+//                                    + matchLength(invoiceResult.getString(2), 11) + "  "
+//                                    + matchLength(invoiceResult.getString(3), 15) + "  "
+//                                    + matchLength(invoiceResult.getString(4), 10));
+//                        }
+//
+//                        System.out.print("-> ");
+//                        String invoiceID = scanner.nextLine();
+//
+//                        System.out.println("Rate the service from 1 to 10:");
+//                        System.out.print("-> ");
+//                        int rating = scanner.nextInt();
+//
+//                        scanner.nextLine();
+//
+//                        System.out.print("Write your review:\n-> ");
+//                        String review = scanner.nextLine();
+//
+////                        String reviewSQL = "INSERT INTO Reviews (clientID, ServiceID, invoiceID, rating, userComment) VALUES (?,?,?,?,?);";
+////
+////                        try{
+////                            PreparedStatement reviewsStatement = conn.prepareStatement(reviewSQL);
+////                            reviewsStatement.setString(1, clientID);
+////
+////                        }
+//                    } catch (SQLException e) {
+//                        System.out.println("Error while fetching invoice list");
+//                    }
+//                    System.out.println("");
                     break;
                 case 5:
                     Service.browseServices(conn, scanner);

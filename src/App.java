@@ -23,7 +23,8 @@ public class App {
             System.out.println("\nMain Menu:");
             System.out.println("1. Register");
             System.out.println("2. Login");
-            System.out.println("3. Quit the application");
+            System.out.println("3. Root Access (get access to special commands)");
+            System.out.println("4. Quit the application");
             //add root mode
             //root mode allows to see different queries
             //check how many users are simple users and not provs or clients
@@ -54,6 +55,22 @@ public class App {
                     loginMenu(scanner);
                     break;
                 case 3:
+                    try {
+                        Connection connection = DriverManager.getConnection(DB_URL, USER, PASS);
+                        Root.rootMenu(connection, scanner);
+                        connection.close();
+                    }
+                    catch (SQLTimeoutException te){
+                        System.out.println("Connection failed to database, because of timeout");
+                        System.out.println("Please check your internet connection");
+                        running = false;
+                    }
+                    catch (SQLException e) {
+                        //TODO
+                        System.out.println(e);
+                    }
+                    break;
+                case 4:
                     running = false;
                     System.out.println("Thank you for doing business with group 104");
                     scanner.close();

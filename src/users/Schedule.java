@@ -8,11 +8,13 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Schedule {
+    private String scheduleId;
     private String days;
     private String startTime;
     private String endTime;
 
-    public Schedule(String days, String startTime, String endTime){
+    public Schedule(String scheduleId, String days, String startTime, String endTime){
+        this.scheduleId = scheduleId;
         this.days = days;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -49,21 +51,21 @@ public class Schedule {
         }
         catch (SQLException e) {
             System.out.println("Error occurred trying to prepare a statement for making a new service");
-            System.out.println(e);
+            System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
         }
     }
 
     public static LinkedList<Schedule> getSchedule(Connection connection, String serviceProviderID){
         //todo not done
-        String sql = "SELECT days,startTime,finishTime FROM Schedule WHERE providerID = ?";
+        String sql = "SELECT scheduleId,days,startTime,endTime FROM Schedule WHERE providerID = ?";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, serviceProviderID);
             LinkedList<Schedule> schedules = new LinkedList<>();
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
-                Schedule schedule = new Schedule(resultSet.getString(1),resultSet.getString(2),
-                                    resultSet.getString(3));
+                Schedule schedule = new Schedule(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),
+                                    resultSet.getString(4));
                 schedules.add(schedule);
             }
             return schedules;
@@ -71,5 +73,23 @@ public class Schedule {
         catch (SQLException e) {
                 return null;
         }
+    }
+
+    public String getScheduleId(){return this.scheduleId;}
+    public String[] getTimes(){return new String[]{this.startTime, this.endTime};}
+/*
+    public void updateScheduleDb(String day){
+        String id = this.scheduleId;
+        String sql = "UPDATE Schedules SET days = ? WHERE scheduleid = ?;";
+
+    }*/
+    public String getDays(){
+        return this.days;
+    }
+
+    @Override
+    public String toString(){
+        return "Days of the week available: " + this.days +
+                "\nAvailable time slot: " + this.startTime + " - " + this.endTime + "\n";
     }
 }

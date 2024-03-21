@@ -54,18 +54,6 @@ public final class Client extends User{
         return new Client(user, ccnum, ccexp);
     }
 
-    @Override
-    public void storeNewUserInDb(Connection connection){
-        super.storeNewUserInDb(connection);
-        String sqlStatement = "";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        }
-        catch (SQLException se){
-            //todo
-        }
-    }
-
     public void clientFromUserToDb(Connection connection){
         String sql = "INSERT INTO Clients (userID, CCNum, CCExp) VALUES (?, ?, ?);";
         String userID = this.getUserID(connection);
@@ -110,7 +98,7 @@ public final class Client extends User{
                     break;
                 case 3:
                     //todo in appmnts package
-                    Appointments.newAppointmentMenu(user, conn, scanner);
+                    Appointments.newAppointmentMenu(user.getUserID(conn), conn, scanner);
                     break;
                 case 4:
                     break;

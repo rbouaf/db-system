@@ -160,7 +160,7 @@ public class Service {
         for (Service s : availableServices) {
             System.out.println(s);
         }
-        System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+        System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to previous Menu\n-> ");
     }
 
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){

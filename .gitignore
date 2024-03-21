@@ -2,7 +2,8 @@
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+src/Date.java
+src/users/Date.java
 ### Eclipse ###
 .apt_generated
 .classpath

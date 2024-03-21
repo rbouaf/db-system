@@ -84,9 +84,8 @@ public final class Client extends User{
             System.out.println("3. Book an appointment for a service");
             System.out.println("4. Leave a Review for a service");
             System.out.println("5. Browse available services");
-            System.out.println("6. View Invoices and Review Services");
-            System.out.println("7. Become a service provider");
-            System.out.println("8. Logout");
+            System.out.println("6. View Invoices");
+            System.out.println("7. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
             switch (choice){
@@ -101,6 +100,8 @@ public final class Client extends User{
                     Appointments.newAppointmentMenu(user.getUserID(conn), conn, scanner);
                     break;
                 case 4:
+                    scanner.nextLine();
+                    Service.leaveAReview(conn, scanner, clientID);
                     break;
                 case 5:
                     Service.browseServices(conn, scanner);
@@ -130,11 +131,6 @@ public final class Client extends User{
                     }
                     break;
                 case 7:
-                    //todo service
-                    //serviceprovider creation menu instead
-                    running = false;
-                    break;
-                case 8:
                     running = false;
                     //TODO THIS IS A VERY UNSECURE WAY OF LOGGING OUT, THE OBJECTS STILL EXIST IN MEMORY?
                     System.out.println("Successfully logged out");
@@ -194,7 +190,32 @@ public final class Client extends User{
                     this.address = newAddress;
                     break;
                 case 5:
-                    //todo change CC info
+                    System.out.print("Input New Credit Card Number (XXXX XXXX XXXX XXXX): ");
+                    String CCNum = scanner.nextLine();
+                    System.out.print("Input New Credit Card Expiry Date (YYYY-MM-DD): ");
+                    String CCExp = scanner.nextLine();
+
+                    String ccSQL = "UPDATE Clients " +
+                            "SET CCNum = ?, CCExp = ? " +
+                            "WHERE userID = ?;";
+
+                    try{
+                        PreparedStatement changeCC = conn.prepareStatement(ccSQL);
+
+                        changeCC.setString(1, CCNum);
+                        changeCC.setString(2, CCExp);
+                        changeCC.setString(3, userId);
+
+                        changeCC.executeUpdate();
+
+                        this.CCExp = CCExp;
+                        this.CCNum = CCNum;
+
+                        System.out.println("Credit Card Information was updated successfully");
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                        System.out.println("There was an issue in updating the credit card");
+                    }
                 case 6:
                     running = false;
                     System.out.println("Returning to account menu.");

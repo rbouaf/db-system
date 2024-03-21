@@ -144,14 +144,9 @@ public abstract class ServiceProvider extends User{
             System.out.println("4. Post a new schedule");
             //the below option is for how many clients booked, how much earned
             //how much earned by service, etc.
-            //todo should we also add delete a service and a schedule???
-            System.out.println("5. Update a service");
-            System.out.println("6. Update a schedule");
-            System.out.println("7. Check useful analytics");
-            System.out.println("8. Browse available services");
-            System.out.println("9. View invoices");
-            System.out.println("10. Become a client");
-            System.out.println("11. Logout");
+            System.out.println("5. Browse available services");
+            System.out.println("6. View invoices");
+            System.out.println("7. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
             switch (choice){
@@ -177,21 +172,9 @@ public abstract class ServiceProvider extends User{
                     Schedule.newSchedule(serviceProvider, conn, scanner);
                     break;
                 case 5:
-                    //todo update a service
-                    Service.updateService(serviceProvider, conn, scanner);
-                    break;
-                case 6:
-                    //todo update a schedule
-                    //list all the schedules to user and make them select the
-                    //one they want to update
-                    break;
-                case 7:
-                    displayData(serviceProvider, conn, scanner);
-                    break;
-                case 8:
                     Service.browseServices(conn, scanner);
                     break;
-                case 9: // View Invoices
+                case 6: // View Invoices
                     String userID = serviceProvider.getUserID(conn);
 
                     String serviceInvoicesSQL = "SELECT I.issueDate, I.amount, I.serviceID, I.clientID FROM Invoices I, Services S " +
@@ -216,10 +199,7 @@ public abstract class ServiceProvider extends User{
                         System.out.println("Error while fetching invoice list");
                     }
                     break;
-                case 10:
-                    //todo may remove that option
-                    break;
-                case 11:
+                case 7:
                     running = false;
                     System.out.println("Successfully logged out");
                     break;
@@ -244,36 +224,6 @@ public abstract class ServiceProvider extends User{
     //check average money
     //check average rating across all existing services
     //check average rating for each service
-
-    public static void displayData(ServiceProvider serviceProvider, Connection conn, Scanner scanner){
-        //scanner.nextLine();
-        System.out.println("\t\tData Analytics Menu");
-        System.out.println("-------------------------------");
-        boolean running = true;
-        while (running) {
-            System.out.println("Choose an option to review data about your account and your customers");
-            System.out.println("1. Average rating for each service");
-            System.out.println("2. Overall rating, across all your services");
-            System.out.println("3. Total money earned by service");
-            System.out.println("4. Total money earned by category");
-            System.out.println("5. Leave this menu");
-            //others related to appointments
-            System.out.println("-> ");
-            int option = scanner.nextInt();
-            switch (option) {
-                case 1:
-                    //todo
-                    break;
-                case 2:
-                    //todo
-                    Service.getOverallRating(serviceProvider, conn);
-                    break;
-                case 5:
-                    running = false;
-                    break;
-            }
-        }
-    }
 
     @Override
     public String toString(){

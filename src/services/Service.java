@@ -3,10 +3,7 @@ package services;
 import users.ServiceProvider;
 
 import java.sql.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Service {
     //may be null
@@ -405,13 +402,66 @@ public class Service {
                 matchLength(serviceProviderID, 17);
     }
 
-    private String matchLength(String str, int len){
+    private static String matchLength(String str, int len){
         if(str.length() > len)
             return str.substring(0, len - 3) + "...";
         else if(str.length() == len) return str;
         else{
             int spaceCount = len - str.length();
             return str + " ".repeat(spaceCount);
+        }
+    }
+
+    public static void leaveAReview(Connection connection, Scanner scanner, String clientID) {
+//TODO: how to get the clientID
+        try {
+            // List of services the user has used
+            System.out.println("Loading services you have used...");
+            String fetchServicesSQL = "SELECT a.issueDate, a.invoiceID, s.serviceID, s.name FROM Services s, Invoices a WHERE s.serviceID = a.serviceID AND a.clientID = ? AND NOT EXISTS (SELECT r.invoiceID FROM Reviews r WHERE a.invoiceID = r.invoiceID)";
+//            String fetchServicesSQL = "SELECT s.serviceID, s.name FROM Services s INNER JOIN Invoices a ON s.serviceID = a.serviceID WHERE a.clientID = ?";
+            PreparedStatement stmt = connection.prepareStatement(fetchServicesSQL);
+            stmt.setString(1, clientID);
+            ResultSet rs = stmt.executeQuery();
+
+            HashMap<String, String> invoiceToService = new HashMap<>();
+//            int serviceCount = 0;
+            System.out.println("Invoice ID | Issue Date | Service ID | Service Name");
+            while (rs.next()) {
+                invoiceToService.put(rs.getString("invoiceID"), rs.getString("serviceID"));
+                System.out.println(matchLength(rs.getString("invoiceID"), 11) + "  " +
+                        matchLength(rs.getString("issueDate"), 11) + "  " +
+                        matchLength(rs.getString("serviceID"), 11) + "  " +
+                        rs.getString("name"));
+            }
+
+            if(invoiceToService.size() > 0){
+                // Asking the user to select a service to review from the services above
+                //if null, they didnt receive service so they should not review,  i donk know how
+                System.out.print("Enter the Invoice ID of the service you would like to review from above: ");
+                String invoiceId = scanner.nextLine();
+                // Getting the rating
+                System.out.print("Enter your rating for the service (1 to 10): ");
+                int rating = scanner.nextInt();
+                scanner.nextLine();
+                // Asking for the optional review text
+                System.out.print("Enter your review (optional, hit enter to skip): ");
+                String userComment = scanner.nextLine();
+                // Inserting review into Reviews
+                String insertReviewSQL = "INSERT INTO Reviews (clientID, serviceID, invoiceID, rating, userComment) VALUES (?, ?, ?, ?, ?);";
+                PreparedStatement insertStmt = connection.prepareStatement(insertReviewSQL);
+                insertStmt.setString(1, clientID);
+                insertStmt.setString(2, invoiceToService.get(invoiceId));
+                insertStmt.setString(3, invoiceId);
+                insertStmt.setInt(4, rating);
+                insertStmt.setString(5, userComment.isEmpty() ? null : userComment);//userComment could be empty since they can hit enter
+                insertStmt.executeUpdate();
+                System.out.println("Thank you for your review!\n");
+            }
+            else{
+                System.out.println("You have no services to review\n");
+            }
+        } catch (SQLException e) {
+            System.out.println("An error occurred while leaving a review: " + e.getMessage());
         }
     }
 }

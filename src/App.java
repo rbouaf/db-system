@@ -7,10 +7,19 @@ import java.util.Scanner;
 public class App {
     private static final String JDBC_DRIVER = "com.ibm.db2.jcc.DB2Driver";
     private static final String DB_URL = "jdbc:db2://winter2024-comp421.cs.mcgill.ca:50000/comp421";
-    private static final String USER = "cs421g104"; //TODO: this will be changed before submitting
-    private static final String PASS = "comp421&&"; //TODO: this will be changed before submitting
+    private static final String USER = System.getenv("SOCSUSER");;
+    private static final String PASS = System.getenv("SOCSPASSWD");
 
     public static void main(String[] args) {
+        if(USER == null && (System.getenv("SOCSUSER")) == null) {
+            System.err.println("Error!! do not have a username to connect to the database!");
+            System.exit(1);
+        }
+        if(PASS == null && (System.getenv("SOCSPASSWD")) == null) {
+            System.err.println("Error!! do not have a password to connect to the database!");
+            System.exit(1);
+        }
+
         try {
             Class.forName(JDBC_DRIVER);
         }
@@ -71,6 +80,7 @@ public class App {
                 case 4:
                     running = false;
                     System.out.println("Thank you for doing business with group 104");
+
                     scanner.close();
                     break;
                 default:
@@ -106,10 +116,6 @@ public class App {
             UserType userType = checkUserType(connection, userId);
             switch (userType){
                 //TODO WHAT IF THE USER IS BOTH A CLIENT AND A SERVICE PROVIDER
-                case Both:
-                    //todo
-                    bothMenu(userId, user, connection, scanner);
-                    break;
                 case Client:
                     Client client = new Client(user, connection);
                     Client.clientMenu(client, connection, scanner);
@@ -170,60 +176,6 @@ public class App {
         return null;
     }
 
-    public static void bothMenu(String userId, User user, Connection conn, Scanner scanner){
-        //todo
-        //want to display all possible options, i.e. the ones for client AND service provider
-        boolean running = true;
-        System.out.println("Welcome " + user.getName());
-        while (running){
-            System.out.println("Please select one of the following options:");
-            System.out.println("1. Change user profile");
-            System.out.println("2. Book an appointment for a service");
-            System.out.println("3. Leave a Review for a service");
-            System.out.println("4. Browse available services");
-            System.out.println("5. Post a new service");
-            //the below option is for how many clients booked, how much earned
-            //how much earned by service, etc.
-            System.out.println("6. Update a service");
-            System.out.println("7. Check useful analytics");
-            System.out.println("8. Logout");
-            System.out.print("-> ");
-            int choice = scanner.nextInt();
-            switch (choice){
-                case 1:
-                    break;
-                case 2:
-                    //TODO
-                    //bookAnAppointment()
-                    break;
-                case 3:
-                    //TODO
-                    //leaveAReview()
-                    break;
-                case 4:
-                    //TODO
-                    Service.browseServices(conn, scanner);
-                    break;
-                case 5:
-                    //TODO
-                    //poseNewService
-                    break;
-                case 6:
-                    //TODO
-                    //updateService
-                    break;
-                case 7:
-                    //TODO
-                    //checkAnalytics
-                    break;
-                case 8:
-                    running = false;
-                    System.out.println("Successfully logged out");
-                    break;
-            }
-        }
-    }
-
     private static UserType checkUserType(Connection connection, String userID) throws SQLException {
         boolean type1;
         boolean type2;
@@ -259,6 +211,6 @@ public class App {
     }
 
     private enum UserType{
-        Client, ServiceProvider, Both, UserOnly
+        Client, ServiceProvider, UserOnly
     }
 }

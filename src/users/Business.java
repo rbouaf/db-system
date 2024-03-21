@@ -7,11 +7,6 @@ import java.util.Scanner;
 
 public final class Business extends ServiceProvider{
     private final String NEQ;
-    public Business(String email, String password, String name, String phone, String address,
-                    String accountNum, String transitNum, String bankNum, String neq) {
-        super(email, password, name, phone, address, accountNum, transitNum, bankNum);
-        this.NEQ = neq;
-    }
 
     public Business(User user, String accountNum, String transitNum, String bankNum, float total, String neq){
         super(user.email, user.password, user.name, user.phone, user.address, accountNum, transitNum, bankNum, total);
@@ -26,11 +21,6 @@ public final class Business extends ServiceProvider{
     }
 
     @Override
-    public ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner) {
-        return null;
-    }
-
-    @Override
     public void storeNewServiceProvider(Connection connection){
         super.storeNewServiceProvider(connection);
         String sqlStatement = "INSERT INTO Businesses (userID,NEQ) " +
@@ -42,7 +32,7 @@ public final class Business extends ServiceProvider{
             preparedStatement.execute();
         }
         catch (SQLException se){
-            //todo
+            System.out.println("An error occured trying to insert a new business into the database...");
         }
     }
 
@@ -51,5 +41,4 @@ public final class Business extends ServiceProvider{
         String str = super.toString();
         return str + "NEQ: " + this.NEQ + "\n";
     }
-
 }

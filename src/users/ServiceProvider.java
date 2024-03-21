@@ -226,8 +226,6 @@ public abstract class ServiceProvider extends User{
             }
         }
     }
-    public abstract ServiceProvider createNewServiceProvider(User user, Connection connection, Scanner scanner);
-
     //may need to do some basic implementation
     public void serviceProviderMenu(String servProvName, Connection connection, Scanner scanner){
         String userId = this.getUserID(connection);

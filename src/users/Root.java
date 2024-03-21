@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Scanner;
 
 public class Root {
@@ -71,7 +70,7 @@ public class Root {
         }
         catch (SQLException e) {
             System.out.println("An error occurred when trying to retrieve data from the database to evaluate ratio");
-            System.out.println(e);
+            System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
             return -1.0f;
         }
     }
@@ -110,6 +109,7 @@ public class Root {
             catch (SQLException e) {
                 System.out.println("An error occurred trying to fetch the minimum and maximum dates of invoices");
                 System.out.println("Cannot proceed further");
+                System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
                 return;
             }
             System.out.println("Your selected dates must be between " + minDate + " and " + maxDate);
@@ -148,6 +148,7 @@ public class Root {
             }
             catch (SQLException e) {
                 System.out.println("Error trying to query the category with most profit");
+                System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
             }
         }
         else if (choice.equalsIgnoreCase("n")) {
@@ -172,6 +173,7 @@ public class Root {
             }
             catch (SQLException e) {
                 System.out.println("Error trying to query the category with most profit");
+                System.out.println("Error code: " + e.getErrorCode() + "\nSQL state: " + e.getSQLState());
             }
         }
         else {

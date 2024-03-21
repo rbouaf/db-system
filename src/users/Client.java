@@ -96,9 +96,8 @@ public final class Client extends User{
             System.out.println("3. Book an appointment for a service");
             System.out.println("4. Leave a Review for a service");
             System.out.println("5. Browse available services");
-            System.out.println("6. View Invoices and Review Services");
-            System.out.println("7. Become a service provider");
-            System.out.println("8. Logout");
+            System.out.println("6. View Invoices");
+            System.out.println("7. Logout");
             System.out.print("-> ");
             int choice = scanner.nextInt();
             switch (choice){
@@ -144,11 +143,6 @@ public final class Client extends User{
                     }
                     break;
                 case 7:
-                    //todo service
-                    //serviceprovider creation menu instead
-                    running = false;
-                    break;
-                case 8:
                     running = false;
                     //TODO THIS IS A VERY UNSECURE WAY OF LOGGING OUT, THE OBJECTS STILL EXIST IN MEMORY?
                     System.out.println("Successfully logged out");

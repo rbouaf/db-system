@@ -55,7 +55,7 @@ public class Schedule {
 
     public static LinkedList<Schedule> getSchedule(Connection connection, String serviceProviderID){
         //todo not done
-        String sql = "SELECT days,startTime,finishTime FROM Schedule WHERE providerID = ?";
+        String sql = "SELECT days,startTime,endTime FROM Schedule WHERE providerID = ?";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, serviceProviderID);

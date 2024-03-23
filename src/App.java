@@ -177,22 +177,22 @@ public class App {
     }
 
     private static UserType checkUserType(Connection connection, String userID) throws SQLException {
-        boolean type1;
-        boolean type2;
+        boolean isClient;
+        boolean isServiceProvider;
+
+
         try {
-            //cannot be in the same block because type2 depends on type1 = true
+            //cannot be in the same block because isServiceProvider depends on isClient = true
             String sql = "SELECT userID FROM Clients WHERE userID = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
             resultSet.getString(1);
-            type1 = true;
+            isClient = true;
             //return UserType.Client;
-        }
-        catch (SQLException se){
-            type1 = false;
-        }
+        }catch (SQLException se){isClient = false;}
+
         try{
             String sql = "SELECT userID FROM ServiceProviders WHERE userID = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -200,14 +200,13 @@ public class App {
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
             resultSet.getString(1);
-            type2 = true;
-        }
-        catch (SQLException se){
-            type2 = false;
-        }
-        return (type1 && type2) ? UserType.ServiceProvider : //todo revert back to Both
-                (type1) ? UserType.Client :
-                        (type2) ? UserType.ServiceProvider : UserType.UserOnly;
+            isServiceProvider = true;
+        }catch (SQLException se){isServiceProvider = false;}
+
+        return (isClient && isServiceProvider) ? UserType.ServiceProvider : //todo revert back to Both
+                (isClient) ? UserType.Client :
+                (isServiceProvider) ? UserType.ServiceProvider :
+                UserType.UserOnly;
     }
 
     private enum UserType{

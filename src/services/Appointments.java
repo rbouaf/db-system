@@ -41,7 +41,7 @@ public class Appointments {
                 }
             }
         }
-        //check schedule
+        //todo check schedule
 
     }
 }

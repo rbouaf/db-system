@@ -19,11 +19,11 @@ public class Appointments {
             System.out.print("If you are not sure, type '-1' to browse and then choose -> ");
             choice = scanner.nextInt();
             if (choice == -1) {
-                //browse menu
+                // browse menu
                 Service.browseServices(connection, scanner);
             }
             else{
-                //check if the service exists
+                // check if the service exists
                 String[] results = Service.getServiceAvailabilityById(connection, choice);
                 if (results == null) System.out.println("The given id does not exist!");
                 else {

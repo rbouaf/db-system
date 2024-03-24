@@ -61,10 +61,13 @@ public class Service {
         this.categoryName = categoryName;
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     public static void browseServices(Connection connection, Scanner scanner){
         fetchAvailableServiceList(connection, "");
         printAvailableServices();
+        System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+
         while(true){
             int c = scanner.nextInt();
             switch (c){
@@ -91,10 +94,14 @@ public class Service {
                     fetchAvailableServiceList(connection,categories);
                     System.out.println("Results for categories: " + categories.replaceAll(" ", ","));
                     printAvailableServices();
+
+                    System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
                     break;
                 case 2:
                     fetchAvailableServiceList(connection, "");
                     printAvailableServices();
+                    System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+
                     break;
                 case 3:
                     // Goes back to user menu
@@ -102,6 +109,8 @@ public class Service {
                 default:
                     System.out.println("Invalid input - Please try again\n");
                     printAvailableServices();
+                    System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+
                     break;
             }
         }
@@ -150,35 +159,24 @@ public class Service {
         }
     }
 
-    public static void printAvailableServices(){
-        System.out.println("List of Available Services:");
-        System.out.println("----------------------------");
-        System.out.println("serviceId\t | name\t\t\t\t| description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryId\t\t| categoryName\t| serviceProviderID");
-        for (Service s : availableServices) {
-            System.out.println(s);
-        }
-        System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
-    }
-
     public static void newService(ServiceProvider serviceProvider, Connection connection, Scanner scanner){
         scanner.nextLine();
+
         System.out.print("Please name your new service -> ");
         String name = scanner.nextLine();
+
         //check if that service from that service provider already exists
         //for the moment not a condition in the database
+
         System.out.print("Please give a description of your service -> ");
         String description = scanner.nextLine();
+
         System.out.print("Set the price rate of your service (decimal) -> ");
         float priceRate;
-        try {
-            priceRate = Float.parseFloat(scanner.nextLine());
-        }
-        catch (NumberFormatException ne){
-            System.out.println("Could not parse the floating point for price");
-            System.out.println("Aborting");
-            return;
-        }
+
+        try {priceRate = Float.parseFloat(scanner.nextLine());}catch (NumberFormatException ne){System.out.println("Could not parse the floating point for price");System.out.println("Aborting");return;}
         System.out.println();
+
         LinkedList<String> list = getCategoriesFromDatabase(connection);
         String str = getCategoriesAsStr(list);
         System.out.println(str);
@@ -213,7 +211,7 @@ public class Service {
             }
             Service service = new Service(name, description, priceRate,
                     categoryID, serviceProvider.getUserID(connection));
-            service.storeInDb(connection);
+            service.storeInDB(connection);
         }
         System.out.println("Successfully stored services in the database for all selected categories");
     }
@@ -247,12 +245,17 @@ public class Service {
         }
     }
 
-    public static void getOverallRating(ServiceProvider serviceProvider, Connection connection){
-        String userID = serviceProvider.getUserID(connection);
-        String sql = "SELECT AVG(*) FROM ";
-        //todo
+    public static void printAvailableServices(){
+        System.out.println("List of Available Services:");
+        System.out.println("----------------------------");
+        System.out.println("serviceId\t | name\t\t\t\t| description\t\t\t| priceRate | numTimesProvided | rating | avgTimeToComplete | categoryId\t\t| categoryName\t| serviceProviderID");
+        for (Service s : availableServices) {
+            System.out.println(s);
+        }
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////
     private static String addNewCategoryToDb(Connection connection, Scanner scanner){
         System.out.print("Give a name to your category -> ");
         String name = scanner.nextLine().toUpperCase();
@@ -301,29 +304,31 @@ public class Service {
         return str;
     }
 
-    private static LinkedList<String> parseChoice(LinkedList<String> list, String choices){
-        String[] arrChoices = choices.split("\\s");
-        LinkedList<String> toReturn = new LinkedList<>();
-        for (String index : arrChoices){
-            try{
-                //num given doesn't start at 0
-                String category = list.get(Integer.parseInt(index) - 1);
-                toReturn.add(category);
-                if (category == null) throw new NullPointerException();
-            }
-            catch (NullPointerException ne){
-                System.out.println("You must select a choice being an integer!");
-                return null;
-            }
-            catch (IndexOutOfBoundsException ie){
-                System.out.println("You chose an invalid value!");
-                return null;
-            }
+    private static String getCategoryId(Connection connection, String category) {
+        String sql = "SELECT categoryID FROM categories WHERE name = ?;";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, category);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getString(1);
         }
-        return toReturn;
+        catch (SQLTimeoutException te){
+            System.out.println("Bad connection, could not get the id of the category");
+            return null;
+        }
+        catch (SQLException se){
+            //todo
+            System.out.println("There was an issue with the provided category ID");
+            return null;
+        }
     }
 
-    private void storeInDb(Connection connection){
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+
+    private void storeInDB(Connection connection){
         String sql = "INSERT INTO Services (name,description,pricerate,availability," +
                 "numTimesProvided,rating,avgTimeToComplete,categoryID,providerID) " +
                 "VALUES (?,?,?,?,?,?,?,?,?)";
@@ -365,50 +370,6 @@ public class Service {
         }
         catch (SQLException e) {
             return null;
-        }
-    }
-
-    private static String getCategoryId(Connection connection, String category) {
-        String sql = "SELECT categoryID FROM categories WHERE name = ?;";
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, category);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            return resultSet.getString(1);
-        }
-        catch (SQLTimeoutException te){
-            System.out.println("Bad connection, could not get the id of the category");
-            return null;
-        }
-        catch (SQLException se){
-            //todo
-            System.out.println("There was an issue with the provided category ID");
-            return null;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return matchLength(serviceId, 10) + "    " +
-                matchLength(name, 16) + "   " +
-                matchLength(description, 21)  + "    " +
-                matchLength(String.format("%.2f", priceRate), 10) + " " +
-                matchLength(String.format("%d", numTimesProvided), 16)+ "   " +
-                matchLength(String.format("%.2f", rating), 6) + "   " +
-                matchLength(String.format("%d", avgTimeToComplete), 17)+ "   " +
-                matchLength(categoryName, 20) + "   " +
-                matchLength(categoryID, 10) + "   " +
-                matchLength(serviceProviderID, 17);
-    }
-
-    private static String matchLength(String str, int len){
-        if(str.length() > len)
-            return str.substring(0, len - 3) + "...";
-        else if(str.length() == len) return str;
-        else{
-            int spaceCount = len - str.length();
-            return str + " ".repeat(spaceCount);
         }
     }
 
@@ -463,5 +424,61 @@ public class Service {
         } catch (SQLException e) {
             System.out.println("An error occurred while leaving a review: " + e.getMessage());
         }
+    }
+
+    public static void getOverallRating(ServiceProvider serviceProvider, Connection connection){
+        String userID = serviceProvider.getUserID(connection);
+        String sql = "SELECT AVG(*) FROM ";
+        //todo
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    private static String matchLength(String str, int len){
+        if(str.length() > len)
+            return str.substring(0, len - 3) + "...";
+        else if(str.length() == len) return str;
+        else{
+            int spaceCount = len - str.length();
+            return str + " ".repeat(spaceCount);
+        }
+    }
+
+    private static LinkedList<String> parseChoice(LinkedList<String> list, String choices){
+        String[] arrChoices = choices.split("\\s");
+        LinkedList<String> toReturn = new LinkedList<>();
+        for (String index : arrChoices){
+            try{
+                //num given doesn't start at 0
+                String category = list.get(Integer.parseInt(index) - 1);
+                toReturn.add(category);
+                if (category == null) throw new NullPointerException();
+            }
+            catch (NullPointerException ne){
+                System.out.println("You must select a choice being an integer!");
+                return null;
+            }
+            catch (IndexOutOfBoundsException ie){
+                System.out.println("You chose an invalid value!");
+                return null;
+            }
+        }
+        return toReturn;
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public String toString() {
+        return matchLength(serviceId, 10) + "    " +
+                matchLength(name, 16) + "   " +
+                matchLength(description, 21)  + "    " +
+                matchLength(String.format("%.2f", priceRate), 10) + " " +
+                matchLength(String.format("%d", numTimesProvided), 16)+ "   " +
+                matchLength(String.format("%.2f", rating), 6) + "   " +
+                matchLength(String.format("%d", avgTimeToComplete), 17)+ "   " +
+                matchLength(categoryName, 20) + "   " +
+                matchLength(categoryID, 10) + "   " +
+                matchLength(serviceProviderID, 17);
     }
 }

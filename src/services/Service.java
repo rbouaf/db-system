@@ -65,6 +65,8 @@ public class Service {
     public static void browseServices(Connection connection, Scanner scanner){
         fetchAvailableServiceList(connection, "");
         printAvailableServices();
+        System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+
         while(true){
             int c = scanner.nextInt();
             switch (c){
@@ -91,10 +93,14 @@ public class Service {
                     fetchAvailableServiceList(connection,categories);
                     System.out.println("Results for categories: " + categories.replaceAll(" ", ","));
                     printAvailableServices();
+
+                    System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
                     break;
                 case 2:
                     fetchAvailableServiceList(connection, "");
                     printAvailableServices();
+                    System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+
                     break;
                 case 3:
                     // Goes back to user menu
@@ -102,6 +108,8 @@ public class Service {
                 default:
                     System.out.println("Invalid input - Please try again\n");
                     printAvailableServices();
+                    System.out.print("\nChoose your next action:\n1- Filter Services by Category | 2- Refresh List | 3- Go Back to User Menu\n-> ");
+
                     break;
             }
         }
@@ -179,6 +187,7 @@ public class Service {
             return;
         }
         System.out.println();
+
         LinkedList<String> list = getCategoriesFromDatabase(connection);
         String str = getCategoriesAsStr(list);
         System.out.println(str);
